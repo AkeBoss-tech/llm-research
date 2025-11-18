@@ -18,15 +18,17 @@
 
     <!-- Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <!-- Assuming logo is available at this path, otherwise generic icon -->
                 <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">N</div>
                 <h1 class="text-xl font-bold text-slate-900">LLM Research</h1>
             </div>
-            <nav class="hidden sm:flex gap-6 text-sm font-medium text-slate-600">
-                <a href="#project-details" class="hover:text-indigo-600 transition-colors">Project Details</a>
-                <a href="#research-plan" class="hover:text-indigo-600 transition-colors">Research Plan</a>
+            <nav class="hidden md:flex gap-6 text-sm font-medium text-slate-600">
+                <a href="#overview" class="hover:text-indigo-600 transition-colors">Overview</a>
+                <a href="#architectures" class="hover:text-indigo-600 transition-colors">Architectures</a>
+                <a href="#data-strategy" class="hover:text-indigo-600 transition-colors">Data Strategy</a>
+                <a href="#roadmap" class="hover:text-indigo-600 transition-colors">Roadmap</a>
+                <a href="#team" class="hover:text-indigo-600 transition-colors">Team</a>
             </nav>
         </div>
     </header>
@@ -35,13 +37,14 @@
     <section class="bg-white pt-20 pb-24 border-b border-slate-100">
         <div class="max-w-5xl mx-auto px-6 text-center">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold mb-6">
-                Research Project
+                Micro-Reasoning Laboratory
             </div>
-            <h2 class="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-6">
+            <h2 class="text-4xl sm:text-6xl font-bold text-slate-900 tracking-tight mb-6">
                 NanoChat Math Reasoning
             </h2>
-            <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                Investigating architectural features for LLMs to perform basic and intermediate math problems using NanoChat as a base model.
+            <p class="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+                Shifting the frontier from "more parameters" to <strong>"more compute per token."</strong><br>
+                Investigating System 2 reasoning, latent space thinking, and recursive architectures in a controlled environment.
             </p>
         </div>
     </section>
@@ -49,42 +52,223 @@
     <!-- Main Content -->
     <main class="flex-grow">
         
-        <!-- Project Details Section -->
-        <section id="project-details" class="py-20">
-            <div class="max-w-5xl mx-auto px-6">
-                <div class="grid md:grid-cols-3 gap-12">
-                    <div class="md:col-span-1">
-                        <h3 class="text-2xl font-bold text-slate-900 mb-4">Project Overview</h3>
+        <!-- Project Overview Section -->
+        <section id="overview" class="py-20">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="grid md:grid-cols-3 gap-12 items-start">
+                    <div class="md:col-span-1 sticky top-24">
+                        <h3 class="text-2xl font-bold text-slate-900 mb-4">The Mission</h3>
+                        <p class="text-slate-600 leading-relaxed mb-6">
+                            Most small models fail at math because they memorize answers rather than algorithms. 
+                        </p>
                         <p class="text-slate-600 leading-relaxed">
-                            Our goal is to determine the most critical architectural features that enable Large Language Models to solve mathematical problems effectively.
+                            We are building a <strong>"Micro-Reasoning" laboratory</strong> to isolate and verify architectural variables that enable true algorithmic reasoning, drawing on research into System 2 thinking and Latent Space models.
                         </p>
                     </div>
-                    <div class="md:col-span-2 grid sm:grid-cols-2 gap-8">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="md:col-span-2 grid sm:grid-cols-2 gap-6">
+                        <!-- Card 1 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-slate-900 mb-2">Inference-Time Reasoning</h4>
+                            <p class="text-sm text-slate-600">Moving beyond static predictions to models that "burn compute" during inference to solve complex problems.</p>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 mb-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                 </svg>
                             </div>
-                            <h4 class="font-semibold text-slate-900 mb-2">Base Model</h4>
-                            <p class="text-sm text-slate-600">Using NanoChat as the foundational architecture for our experiments and baselines.</p>
+                            <h4 class="font-semibold text-slate-900 mb-2">Controlled Baseline</h4>
+                            <p class="text-sm text-slate-600">Using NanoChat to strictly control variables and measure the impact of architectural changes without the noise of massive scale.</p>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <!-- Card 3 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                             <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <h4 class="font-semibold text-slate-900 mb-2">Methodology</h4>
-                            <p class="text-sm text-slate-600">Comparative analysis of synthetic data training across standard and novel architectures.</p>
+                            <h4 class="font-semibold text-slate-900 mb-2">Rigorous Verification</h4>
+                            <p class="text-sm text-slate-600">Employing "Reverse Operation" tests and OOD generalization to prove the model learned logic, not just patterns.</p>
+                        </div>
+                        <!-- Card 4 -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-slate-900 mb-2">Novel Generalization</h4>
+                            <p class="text-sm text-slate-600">Testing on "Operator Inference" and "Modulo-N" datasets to evaluate in-context learning of new rules.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- Architecture Deep Dive -->
+        <section id="architectures" class="py-20 bg-slate-50 border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Experimental Architectures</h3>
+                    <p class="text-slate-600 max-w-2xl mx-auto">Moving from System 1 (Fast/Shallow) to System 2 (Slow/Deep) Thinking.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Latent Space -->
+                    <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="bg-indigo-600 px-6 py-4">
+                            <h4 class="text-white font-bold text-lg">Latent Reasoning (COCONUT)</h4>
+                            <span class="text-indigo-200 text-xs uppercase tracking-wider font-semibold">Cutting Edge</span>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-slate-600 text-sm mb-4">Instead of outputting English words for reasoning, the model outputs "blank" reasoning states (vectors) that are fed back into the input.</p>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span>Thinking in high-dimensional vector space.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span>Bypasses vocabulary projection for intermediate steps.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span>Potential for faster, deeper abstract reasoning.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Recursive Layers -->
+                    <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="bg-slate-800 px-6 py-4">
+                            <h4 class="text-white font-bold text-lg">Recursive Layers</h4>
+                            <span class="text-slate-300 text-xs uppercase tracking-wider font-semibold">Depth > Width</span>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-slate-600 text-sm mb-4">Looping the input through the <em>same</em> layer weights multiple times to increase computational graph depth without adding parameters.</p>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-slate-800 font-bold">•</span>
+                                    <span>Crucial for multi-step sequential logic.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-slate-800 font-bold">•</span>
+                                    <span>Forces learning of general reasoning functions.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-slate-800 font-bold">•</span>
+                                    <span>Keeps model "Nano" sized while increasing IQ.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tool Use -->
+                    <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="bg-teal-600 px-6 py-4">
+                            <h4 class="text-white font-bold text-lg">Tool Use & Pause Tokens</h4>
+                            <span class="text-teal-200 text-xs uppercase tracking-wider font-semibold">Agency</span>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-slate-600 text-sm mb-4">Training the model to recognize when to stop generation and call an external calculator or "burn compute" on &lt;think&gt; tokens.</p>
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-teal-600 font-bold">•</span>
+                                    <span>Solves the large-number hallucination problem.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-teal-600 font-bold">•</span>
+                                    <span>Separates logic (planning) from computation (execution).</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-teal-600 font-bold">•</span>
+                                    <span>Allows manipulation of internal state before answering.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Strategy -->
+        <section id="data-strategy" class="py-20 border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-6">Data Strategy: The Fuel</h3>
+                        <div class="space-y-8">
+                            <div>
+                                <h4 class="text-lg font-bold text-indigo-700 mb-2">1. The "Reverse Operation" Test</h4>
+                                <p class="text-slate-600 text-sm">
+                                    We don't just generate <code>3 + 4 = 7</code>. We generate triples: <code>3 + 4 = 7</code>, <code>7 - 4 = 3</code>, <code>7 - 3 = 4</code>. If the model solves addition but fails subtraction, it hasn't learned the relationship.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-indigo-700 mb-2">2. Process Reward Verification</h4>
+                                <p class="text-slate-600 text-sm">
+                                    Generating data as <code>(Question, Step 1, Step 2, Answer)</code>. We will use a tiny "Judge" model to score each step as valid/invalid, mimicking state-of-the-art Process Supervision.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-bold text-indigo-700 mb-2">3. OOD Generalization</h4>
+                                <p class="text-slate-600 text-sm">
+                                    Testing for "Grokking" and Length Generalization. Training on 3-digit multiplication and testing on 4-digit. Using <strong>RoPE</strong> or <strong>ALiBi</strong> embeddings to enable length extrapolation.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 rounded-2xl p-8 text-slate-300 font-mono text-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 text-slate-600 opacity-20">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                        </div>
+                        <p class="mb-4"><span class="text-purple-400">class</span> <span class="text-yellow-300">ToolAwareNanochat</span>:</p>
+                        <p class="pl-4 mb-4">
+                            <span class="text-slate-500"># ... inference loop wrapper ...</span>
+                        </p>
+                        <p class="pl-4 mb-2">
+                            <span class="text-purple-400">def</span> <span class="text-blue-400">generate</span>(self, prompt):
+                        </p>
+                        <p class="pl-8 mb-2">
+                            <span class="text-purple-400">while</span> <span class="text-yellow-300">True</span>:
+                        </p>
+                        <p class="pl-12 mb-2">
+                            output = model.generate(...)
+                        </p>
+                        <p class="pl-12 mb-2">
+                            <span class="text-purple-400">if</span> <span class="text-green-400">"&lt;call_tool&gt;"</span> <span class="text-purple-400">in</span> output:
+                        </p>
+                        <p class="pl-16 mb-2">
+                            <span class="text-slate-500"># Pause and execute math</span>
+                        </p>
+                        <p class="pl-16 mb-2">
+                            result = <span class="text-blue-400">eval</span>(tool_content)
+                        </p>
+                        <p class="pl-16 mb-2">
+                            context += <span class="text-green-400">f"&lt;tool_output&gt;{result}&lt;/...&gt;"</span>
+                        </p>
+                        <p class="pl-12 mb-2">
+                            <span class="text-purple-400">else</span>:
+                        </p>
+                        <p class="pl-16">
+                            <span class="text-purple-400">return</span> output
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Research Plan / Roadmap -->
-        <section id="research-plan" class="py-20 bg-slate-100">
+        <section id="roadmap" class="py-20 bg-slate-100">
             <div class="max-w-4xl mx-auto px-6">
                 <div class="text-center mb-16">
                     <h3 class="text-3xl font-bold text-slate-900 mb-4">Research Roadmap</h3>
@@ -94,13 +278,13 @@
                 <div class="space-y-12 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
                     
                     <!-- Phase 1 -->
-                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                         <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-indigo-600 text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                             <span class="font-bold text-sm">1</span>
                         </div>
                         <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-lg text-slate-900 mb-2">Synthetic Data Generation</h4>
-                            <p class="text-slate-600 text-sm">Creation of synthetic datasets covering basic arithmetic (addition, subtraction, multiplication, division) and basic math word problems.</p>
+                            <h4 class="font-bold text-lg text-slate-900 mb-2">Algorithmic Baselines</h4>
+                            <p class="text-slate-600 text-sm">Generating "Reverse Operation" triples and "Modulo-N" arithmetic datasets to test conceptual understanding vs. memorization.</p>
                         </div>
                     </div>
 
@@ -110,8 +294,8 @@
                             <span class="font-bold text-sm">2</span>
                         </div>
                         <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-lg text-slate-900 mb-2">Baseline Testing</h4>
-                            <p class="text-slate-600 text-sm">Evaluating the NanoChat base model on the generated benchmarks to establish performance baselines.</p>
+                            <h4 class="font-bold text-lg text-slate-900 mb-2">Reasoning & Latent Space</h4>
+                            <p class="text-slate-600 text-sm">Implementing <strong>Latent Space (COCONUT)</strong> and <strong>Recursive Layer</strong> architectures. Testing on Logic Puzzles and Cryptarithmetic that require holding intermediate states.</p>
                         </div>
                     </div>
 
@@ -121,8 +305,8 @@
                             <span class="font-bold text-sm">3</span>
                         </div>
                         <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-lg text-slate-900 mb-2">Architecture Exploration</h4>
-                            <p class="text-slate-600 text-sm">Developing models with novel features: thinking tokens, tool use, and continuous chain of thought. Testing performance at equivalent model sizes.</p>
+                            <h4 class="font-bold text-lg text-slate-900 mb-2">Tool Use & Agency</h4>
+                            <p class="text-slate-600 text-sm">Deploying "Tool-User" architecture for large number arithmetic and recursive word problems. Measuring the "Big Number" trap performance.</p>
                         </div>
                     </div>
 
@@ -132,22 +316,52 @@
                             <span class="font-bold text-sm">4</span>
                         </div>
                         <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-lg text-slate-900 mb-2">Small Model Optimization</h4>
-                            <p class="text-slate-600 text-sm">Training smaller models on similar problem formats to evaluate efficiency and minimal size requirements for reasoning.</p>
+                            <h4 class="font-bold text-lg text-slate-900 mb-2">Novel Generalization</h4>
+                            <p class="text-slate-600 text-sm">The ultimate test: "Operator Inference" datasets where the model must learn new math operators (e.g., x # y = 2x + y) defined in the prompt.</p>
                         </div>
                     </div>
 
-                    <!-- Phase 5 -->
-                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-300 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                            <span class="font-bold text-sm">5</span>
-                        </div>
-                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h4 class="font-bold text-lg text-slate-900 mb-2">Generalization Testing</h4>
-                            <p class="text-slate-600 text-sm">Creating harder datasets with novel structures requiring similar reasoning skills to test generalization capabilities.</p>
-                        </div>
-                    </div>
+                </div>
+            </div>
+        </section>
 
+        <!-- Team Section -->
+        <section id="team" class="py-20 bg-white border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6 text-center">
+                <h3 class="text-3xl font-bold text-slate-900 mb-12">Research Team</h3>
+                <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-8">
+                    <!-- Member 1 -->
+                    <div class="group">
+                        <div class="w-24 h-24 mx-auto bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            AK
+                        </div>
+                        <h4 class="font-bold text-slate-900">Arnav Kondagunta</h4>
+                        <p class="text-sm text-slate-500">Researcher</p>
+                    </div>
+                    <!-- Member 2 -->
+                    <div class="group">
+                        <div class="w-24 h-24 mx-auto bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            VK
+                        </div>
+                        <h4 class="font-bold text-slate-900">Vikram Krishnaswamy</h4>
+                        <p class="text-sm text-slate-500">Researcher</p>
+                    </div>
+                    <!-- Member 3 -->
+                    <div class="group">
+                        <div class="w-24 h-24 mx-auto bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            GK
+                        </div>
+                        <h4 class="font-bold text-slate-900">Gokul Kumarassamy</h4>
+                        <p class="text-sm text-slate-500">Researcher</p>
+                    </div>
+                    <!-- Member 4 -->
+                    <div class="group">
+                        <div class="w-24 h-24 mx-auto bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            AD
+                        </div>
+                        <h4 class="font-bold text-slate-900">Akash Dubey</h4>
+                        <p class="text-sm text-slate-500">Researcher</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -157,7 +371,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-12">
         <div class="max-w-5xl mx-auto px-6 text-center text-slate-500 text-sm">
-            <p>&copy; 2025 NanoChat Research Project. Open Source.</p>
+            <p>&copy; 2025 NanoChat Research Project. Open Source Micro-Reasoning Laboratory.</p>
         </div>
     </footer>
 
