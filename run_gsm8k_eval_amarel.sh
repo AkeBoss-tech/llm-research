@@ -96,7 +96,10 @@ if [ -f "uv.lock" ]; then
     echo "Removing old uv.lock to regenerate with compatible PyTorch version..."
     rm -f uv.lock
 fi
-uv sync --extra gpu || {
+
+# First, install dependencies without the local package (to avoid rustbpe build issues)
+echo "Installing dependencies (excluding local package)..."
+uv sync --extra gpu --no-install-project || {
     echo "WARNING: uv sync failed, trying manual installation with compatible PyTorch version..."
     pip install --upgrade pip setuptools wheel
     # Install PyTorch 2.1.2 with CUDA 11.8 (compatible with manylinux_2_17 / older GLIBC)
@@ -105,7 +108,15 @@ uv sync --extra gpu || {
     # Install other dependencies
     pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
         regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3 pandas>=2.0.0
-    pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
+}
+
+# Try to install the local package with --no-build-isolation (uses venv Python with SSL)
+echo "Installing local nanochat package..."
+pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
+# Try to install in editable mode with no build isolation to avoid SSL issues
+pip install -e . --no-build-isolation 2>/dev/null || {
+    echo "Warning: Could not install nanochat in editable mode (rustbpe may not be available)"
+    echo "  This is usually fine if you don't need the rustbpe tokenizer"
 }
 
 # --- 🩺 VERIFICATION ---
