@@ -23,14 +23,17 @@ echo "User: $USER"
 echo "Home: $HOME"
 echo "=========================================="
 
-# --- 🎯 CONDA ENVIRONMENT SETUP (PRIORITIZED) ---
+# --- 🎯 LOCAL CONDA ENVIRONMENT SETUP (GLIBC & Python 3.10 Compatible) ---
 
-# Load the anaconda3 module (Adjust version if necessary for Amarel)
-# The search results suggest this is a common first step on HPC systems.
-echo "Loading anaconda3 module..."
-module purge
-module use /projects/community/modulefiles
-module load anaconda/2023.10-bd387 || { echo "ERROR: Failed to load anaconda3 module. Check module availability."; exit 1; }
+CONDA_ENV_NAME="nanochat_torch_310"
+
+# 1. Initialize Local Conda
+echo "Sourcing user's .bashrc to initialize local Conda installation..."
+# This is crucial for SLURM jobs to recognize the local 'conda' command.
+source "$HOME/.bashrc" || { echo "ERROR: Failed to source ~/.bashrc. Check local Miniconda installation."; exit 1; }
+
+# Initialize Conda for the current shell
+eval "$(conda shell.bash hook)"
 
 # Determine repository location
 if [ -n "$SLURM_SUBMIT_DIR" ]; then
@@ -41,51 +44,33 @@ fi
 echo "Repository directory: $REPO_DIR"
 cd "$REPO_DIR" || { echo "ERROR: Cannot change to repository directory"; exit 1; }
 
-# Set up environment
+# Set up environment variables
 export OMP_NUM_THREADS=1
 export NANOCHAT_BASE_DIR="$HOME/.cache/nanochat"
 mkdir -p "$NANOCHAT_BASE_DIR"
 echo "Cache directory: $NANOCHAT_BASE_DIR"
 
-# Check for and activate/create the conda environment
-CONDA_ENV_NAME="nanochat_torch"
-CONDA_AVAILABLE=false
-
-# Check for conda availability (should be available after module load)
-if command -v conda &> /dev/null; then
-    CONDA_AVAILABLE=true
-fi
-
-if [ "$CONDA_AVAILABLE" = true ]; then
-    echo "Using conda for environment setup..."
-
-    # Ensure conda is initialized for the current shell
-    eval "$(conda shell.bash hook)"
-
-    # Try to activate existing environment or create new one
-    if conda env list | grep -q "$CONDA_ENV_NAME"; then
-        echo "Activating existing conda environment '$CONDA_ENV_NAME'..."
-        conda activate "$CONDA_ENV_NAME"
-    else
-        echo "Creating new conda environment '$CONDA_ENV_NAME' with Python 3.10 and PyTorch (CUDA 12.1)..."
-        # Create environment
-        conda create -n "$CONDA_ENV_NAME" python=3.10 -y || { echo "ERROR: Conda environment creation failed."; exit 1; }
-        conda activate "$CONDA_ENV_NAME"
-        
-        # Install PyTorch with CUDA support using the recommended channels
-        conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia -y || { echo "ERROR: PyTorch installation failed."; exit 1; }
-        
-        # Install other dependencies
-        pip install --upgrade pip setuptools wheel
-        # Install other dependencies manually (skip problematic pip install -e .)
-        pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
-            regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3
-        # Install maturin for building rustbpe (if needed)
-        pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
-    fi
+# 2. Check for and activate/create the conda environment
+if conda env list | grep -q "$CONDA_ENV_NAME"; then
+    echo "Activating existing local conda environment '$CONDA_ENV_NAME'..."
+    conda activate "$CONDA_ENV_NAME"
 else
-    echo "ERROR: Conda is not available even after loading module. Check 'module load anaconda3/'"
-    exit 1
+    echo "Creating new local conda environment '$CONDA_ENV_NAME' with **Python 3.10**..."
+    # Create environment with Python 3.10
+    conda create -n "$CONDA_ENV_NAME" python=3.10 -y || { echo "ERROR: Conda environment creation failed."; exit 1; }
+    conda activate "$CONDA_ENV_NAME"
+    
+    # 3. Install PyTorch (CUDA 11.8 for GLIBC compatibility)
+    echo "Installing PyTorch 2.1.2 with CUDA 11.8 for GLIBC compatibility..."
+    conda install pytorch=2.1.2 torchvision=0.16.2 torchaudio=2.1.2 \
+        cuda-version=11.8 -c pytorch -c conda-forge -y || { echo "ERROR: PyTorch installation failed."; exit 1; }
+    
+    # 4. Install other dependencies
+    echo "Installing other dependencies..."
+    pip install --upgrade pip setuptools wheel
+    pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
+        regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3
+    pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
 fi
 
 # --- 🩺 VERIFICATION ---
