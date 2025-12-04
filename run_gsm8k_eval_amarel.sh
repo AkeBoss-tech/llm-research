@@ -23,11 +23,35 @@ echo "User: $USER"
 echo "Home: $HOME"
 echo "=========================================="
 
-# Load Python 3.8.2 module (available on Amarel)
-echo "Loading Python 3.8.2 module..."
-module load python/3.8.2
-which python3
-python3 --version
+# Check for Python 3.10+ requirement
+# Amarel only has Python 3.8.2 via modules, so we need conda or custom Python
+echo "Checking Python availability..."
+echo "Note: nanochat requires Python >=3.10, but Amarel modules only provide 3.8.2"
+
+# Check for custom Python installation (built from source)
+CUSTOM_PYTHON_DIR="$HOME/python/3.10.13"  # Default version from setup script
+if [ -f "$CUSTOM_PYTHON_DIR/bin/python3" ]; then
+    echo "Found custom Python installation at $CUSTOM_PYTHON_DIR"
+    export PATH="$CUSTOM_PYTHON_DIR/bin:$PATH"
+    export LD_LIBRARY_PATH="$CUSTOM_PYTHON_DIR/lib:$LD_LIBRARY_PATH"
+    CUSTOM_PYTHON_AVAILABLE=true
+else
+    # Try to find any Python 3.10+ in ~/python/
+    for py_dir in "$HOME"/python/3.1* "$HOME"/python/3.2*; do
+        if [ -f "$py_dir/bin/python3" ]; then
+            PYTHON_VER=$(basename "$py_dir")
+            echo "Found custom Python installation: $py_dir"
+            export PATH="$py_dir/bin:$PATH"
+            export LD_LIBRARY_PATH="$py_dir/lib:$LD_LIBRARY_PATH"
+            CUSTOM_PYTHON_AVAILABLE=true
+            break
+        fi
+    done
+    if [ "${CUSTOM_PYTHON_AVAILABLE:-false}" != "true" ]; then
+        echo "No custom Python found. Will try conda/miniconda or system Python."
+        CUSTOM_PYTHON_AVAILABLE=false
+    fi
+fi
 
 # Determine repository location
 # SLURM sets SLURM_SUBMIT_DIR to the directory where sbatch was run
@@ -55,14 +79,55 @@ echo "Cache directory: $NANOCHAT_BASE_DIR"
 # module load cudnn/8.9
 
 # Set up Python environment
-# Option 1: Use uv (if available)
-if command -v uv &> /dev/null; then
-    echo "Using uv for environment setup..."
-    [ -d "$REPO_DIR/.venv" ] || uv venv "$REPO_DIR/.venv"
-    uv sync --extra gpu
-    source "$REPO_DIR/.venv/bin/activate"
-# Option 2: Use conda (if available)
-elif command -v conda &> /dev/null; then
+# Priority: custom Python (from source) > conda/miniconda > uv > system Python
+# Note: Project requires Python >=3.10, but Amarel's Python 3.8.2 has _ctypes issues
+
+# Option 1: Use custom Python built from source (BEST - full control)
+if [ "$CUSTOM_PYTHON_AVAILABLE" = true ]; then
+    echo "Using custom Python installation..."
+    # Verify Python version
+    PYTHON_VER=$(python3 --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+    PYTHON_MAJOR=$(echo "$PYTHON_VER" | cut -d. -f1)
+    PYTHON_MINOR=$(echo "$PYTHON_VER" | cut -d. -f2)
+    
+    if [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -ge 10 ]; then
+        echo "Python version check passed: $(python3 --version)"
+        # Create venv in repo directory
+        if [ ! -d "$REPO_DIR/.venv" ]; then
+            echo "Creating virtual environment..."
+            python3 -m venv "$REPO_DIR/.venv"
+        fi
+        source "$REPO_DIR/.venv/bin/activate"
+        pip install --upgrade pip setuptools wheel
+        # Install PyTorch with CUDA support
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+        # Install other dependencies manually
+        pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
+            regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3
+        # Install maturin for building rustbpe (if needed)
+        pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
+    else
+        echo "ERROR: Custom Python version $PYTHON_VER is too old (need >=3.10)"
+        CUSTOM_PYTHON_AVAILABLE=false
+    fi
+fi
+
+# Option 2: Use conda/miniconda (if custom Python not available)
+if [ "$CUSTOM_PYTHON_AVAILABLE" != true ]; then
+    # Check for conda in common locations
+    if command -v conda &> /dev/null; then
+        CONDA_AVAILABLE=true
+    elif [ -f "$HOME/miniconda3/bin/conda" ]; then
+        export PATH="$HOME/miniconda3/bin:$PATH"
+        CONDA_AVAILABLE=true
+    elif [ -f "$HOME/anaconda3/bin/conda" ]; then
+        export PATH="$HOME/anaconda3/bin:$PATH"
+        CONDA_AVAILABLE=true
+    else
+        CONDA_AVAILABLE=false
+    fi
+
+    if [ "$CONDA_AVAILABLE" = true ]; then
     echo "Using conda for environment setup..."
     # Initialize conda if needed
     if [ -f "$HOME/.bashrc" ] && grep -q "conda initialize" "$HOME/.bashrc"; then
@@ -70,26 +135,56 @@ elif command -v conda &> /dev/null; then
     fi
     # Try to activate existing environment or create new one
     if conda env list | grep -q "nanochat"; then
+        echo "Activating existing conda environment 'nanochat'..."
         conda activate nanochat
     else
-        echo "Creating new conda environment 'nanochat'..."
-        conda create -n nanochat python=3.8 -y
+        echo "Creating new conda environment 'nanochat' with Python 3.10..."
+        conda create -n nanochat python=3.10 -y
         conda activate nanochat
-        pip install --upgrade pip
+        pip install --upgrade pip setuptools wheel
+        # Install PyTorch with CUDA support
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-        pip install -e .
+        # Install other dependencies manually (skip problematic pip install -e .)
+        pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
+            regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3
+        # Install maturin for building rustbpe (if needed)
+        pip install maturin>=1.7,<2.0 || echo "Warning: maturin installation failed, rustbpe may not work"
     fi
-# Option 3: Use Python module with venv
-else
-    echo "Using Python 3.8.2 module with venv..."
-    # Create venv in repo directory (not SLURM temp directory)
-    if [ ! -d "$REPO_DIR/.venv" ]; then
-        python3 -m venv "$REPO_DIR/.venv"
+# Option 2: Use uv (if available)
+elif command -v uv &> /dev/null; then
+    echo "Using uv for environment setup..."
+    # Install uv if not in PATH but might be in ~/.cargo/bin
+    if ! command -v uv &> /dev/null && [ -f "$HOME/.cargo/bin/uv" ]; then
+        export PATH="$HOME/.cargo/bin:$PATH"
     fi
+    [ -d "$REPO_DIR/.venv" ] || uv venv "$REPO_DIR/.venv" --python 3.10 || uv venv "$REPO_DIR/.venv"
     source "$REPO_DIR/.venv/bin/activate"
-    pip install --upgrade pip
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-    pip install -e .
+    uv sync --extra gpu || {
+        echo "uv sync failed, trying manual installation..."
+        pip install --upgrade pip setuptools wheel
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+        pip install datasets fastapi files-to-prompt psutil regex tiktoken tokenizers uvicorn wandb
+    }
+    # Option 3: Try system Python (may have _ctypes issues)
+    else
+        echo "ERROR: No suitable Python 3.10+ installation found!"
+        echo ""
+        echo "Please choose one of these options:"
+        echo ""
+        echo "Option A: Build Python from source (RECOMMENDED)"
+        echo "  Run this script ONCE on a login node:"
+        echo "    bash setup_python_amarel.sh"
+        echo "  This will build Python 3.10.13 in ~/python/3.10.13/"
+        echo ""
+        echo "Option B: Install Miniconda"
+        echo "  cd ~"
+        echo "  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+        echo "  bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/miniconda3"
+        echo "  ~/miniconda3/bin/conda init bash"
+        echo "  source ~/.bashrc"
+        echo ""
+        exit 1
+    fi
 fi
 
 # Verify GPU availability
@@ -99,11 +194,17 @@ nvidia-smi || echo "nvidia-smi not available"
 echo "=========================================="
 
 # Check Python and PyTorch
-echo "Python version: $(python --version)"
-echo "PyTorch version: $(python -c 'import torch; print(torch.__version__)')"
-echo "CUDA available: $(python -c 'import torch; print(torch.cuda.is_available())')"
-if python -c 'import torch; print(torch.cuda.is_available())' | grep -q True; then
-    echo "CUDA device: $(python -c 'import torch; print(torch.cuda.get_device_name(0))')"
+echo "Python version: $(python --version 2>&1 || echo 'ERROR: Python not found')"
+echo "Python path: $(which python)"
+if python -c "import sys; print(f'Python {sys.version}')" 2>&1; then
+    echo "PyTorch version: $(python -c 'import torch; print(torch.__version__)' 2>&1 || echo 'PyTorch not installed')"
+    echo "CUDA available: $(python -c 'import torch; print(torch.cuda.is_available())' 2>&1 || echo 'PyTorch not installed')"
+    if python -c 'import torch; print(torch.cuda.is_available())' 2>&1 | grep -q True; then
+        echo "CUDA device: $(python -c 'import torch; print(torch.cuda.get_device_name(0))' 2>&1)"
+    fi
+else
+    echo "ERROR: Python is not working correctly. Check for _ctypes module issues."
+    echo "Try using conda: conda create -n nanochat python=3.10 -y"
 fi
 echo "=========================================="
 
