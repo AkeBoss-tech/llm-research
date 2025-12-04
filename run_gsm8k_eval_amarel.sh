@@ -91,6 +91,11 @@ source .venv/bin/activate || { echo "ERROR: Failed to activate virtual environme
 
 # 4. Install dependencies using uv (includes PyTorch with CUDA 11.8 for GLIBC compatibility)
 echo "Installing dependencies with uv (including PyTorch with CUDA 11.8 for GLIBC compatibility)..."
+# Remove lock file if it exists to force regeneration with correct PyTorch version
+if [ -f "uv.lock" ]; then
+    echo "Removing old uv.lock to regenerate with compatible PyTorch version..."
+    rm -f uv.lock
+fi
 uv sync --extra gpu || {
     echo "WARNING: uv sync failed, trying manual installation with compatible PyTorch version..."
     pip install --upgrade pip setuptools wheel
