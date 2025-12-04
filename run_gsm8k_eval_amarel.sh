@@ -33,7 +33,10 @@ CUSTOM_PYTHON_DIR="$HOME/python/3.10.13"  # Default version from setup script
 if [ -f "$CUSTOM_PYTHON_DIR/bin/python3" ]; then
     echo "Found custom Python installation at $CUSTOM_PYTHON_DIR"
     export PATH="$CUSTOM_PYTHON_DIR/bin:$PATH"
-    export LD_LIBRARY_PATH="$CUSTOM_PYTHON_DIR/lib:$LD_LIBRARY_PATH"
+    # Set LD_LIBRARY_PATH to include Python's lib directory (critical for venv to work)
+    export LD_LIBRARY_PATH="$CUSTOM_PYTHON_DIR/lib:${LD_LIBRARY_PATH:-}"
+    # Also set PYTHONHOME if needed
+    export PYTHONHOME="$CUSTOM_PYTHON_DIR"
     CUSTOM_PYTHON_AVAILABLE=true
 else
     # Try to find any Python 3.10+ in ~/python/
@@ -42,7 +45,8 @@ else
             PYTHON_VER=$(basename "$py_dir")
             echo "Found custom Python installation: $py_dir"
             export PATH="$py_dir/bin:$PATH"
-            export LD_LIBRARY_PATH="$py_dir/lib:$LD_LIBRARY_PATH"
+            export LD_LIBRARY_PATH="$py_dir/lib:${LD_LIBRARY_PATH:-}"
+            export PYTHONHOME="$py_dir"
             CUSTOM_PYTHON_AVAILABLE=true
             break
         fi
