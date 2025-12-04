@@ -23,9 +23,20 @@ echo "User: $USER"
 echo "Home: $HOME"
 echo "=========================================="
 
+# Load Python 3.8.2 module (available on Amarel)
+echo "Loading Python 3.8.2 module..."
+module load python/3.8.2
+which python3
+python3 --version
+
 # Determine repository location
-# The script assumes it's being run from within the cloned repository
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# SLURM sets SLURM_SUBMIT_DIR to the directory where sbatch was run
+if [ -n "$SLURM_SUBMIT_DIR" ]; then
+    REPO_DIR="$SLURM_SUBMIT_DIR"
+else
+    # Fallback: use current working directory
+    REPO_DIR="$(pwd)"
+fi
 echo "Repository directory: $REPO_DIR"
 cd "$REPO_DIR" || { echo "ERROR: Cannot change to repository directory"; exit 1; }
 
@@ -47,9 +58,9 @@ echo "Cache directory: $NANOCHAT_BASE_DIR"
 # Option 1: Use uv (if available)
 if command -v uv &> /dev/null; then
     echo "Using uv for environment setup..."
-    [ -d ".venv" ] || uv venv
+    [ -d "$REPO_DIR/.venv" ] || uv venv "$REPO_DIR/.venv"
     uv sync --extra gpu
-    source .venv/bin/activate
+    source "$REPO_DIR/.venv/bin/activate"
 # Option 2: Use conda (if available)
 elif command -v conda &> /dev/null; then
     echo "Using conda for environment setup..."
@@ -62,17 +73,20 @@ elif command -v conda &> /dev/null; then
         conda activate nanochat
     else
         echo "Creating new conda environment 'nanochat'..."
-        conda create -n nanochat python=3.10 -y
+        conda create -n nanochat python=3.8 -y
         conda activate nanochat
         pip install --upgrade pip
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
         pip install -e .
     fi
-# Option 3: Use system Python with venv
+# Option 3: Use Python module with venv
 else
-    echo "Using system Python with venv..."
-    python3 -m venv .venv
-    source .venv/bin/activate
+    echo "Using Python 3.8.2 module with venv..."
+    # Create venv in repo directory (not SLURM temp directory)
+    if [ ! -d "$REPO_DIR/.venv" ]; then
+        python3 -m venv "$REPO_DIR/.venv"
+    fi
+    source "$REPO_DIR/.venv/bin/activate"
     pip install --upgrade pip
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
     pip install -e .
@@ -115,7 +129,9 @@ echo "=========================================="
 # Adjust parameters as needed:
 # --max-problems: Limit number of problems for faster testing
 # --models: Specify which models to evaluate
-python eval_gsm8k_all_models.py \
+# Make sure we're in the repo directory and use absolute path
+cd "$REPO_DIR"
+python "$REPO_DIR/eval_gsm8k_all_models.py" \
     --models default d32 d34 \
     --max-problems 1000 \
     --num-samples 1 \
@@ -144,7 +160,8 @@ echo "Found results file: $RESULTS_FILE"
 
 # Generate HTML visualization
 echo "Generating HTML visualization..."
-python visualize_gsm8k_results.py "$RESULTS_FILE" --output "$OUTPUT_DIR/report.html"
+cd "$REPO_DIR"
+python "$REPO_DIR/visualize_gsm8k_results.py" "$RESULTS_FILE" --output "$OUTPUT_DIR/report.html"
 
 VIS_EXIT_CODE=$?
 
