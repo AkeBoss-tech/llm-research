@@ -92,12 +92,18 @@ if [ "$CUSTOM_PYTHON_AVAILABLE" = true ]; then
     
     if [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -ge 10 ]; then
         echo "Python version check passed: $(python3 --version)"
-        # Create venv in repo directory
-        if [ ! -d "$REPO_DIR/.venv" ]; then
-            echo "Creating virtual environment..."
-            python3 -m venv "$REPO_DIR/.venv"
+        # Remove old venv if it exists (may have been created with wrong Python version)
+        if [ -d "$REPO_DIR/.venv" ]; then
+            echo "Removing old virtual environment (may have been created with wrong Python version)..."
+            rm -rf "$REPO_DIR/.venv"
         fi
+        # Create fresh venv with Python 3.10+
+        echo "Creating virtual environment with Python 3.10+..."
+        python3 -m venv "$REPO_DIR/.venv"
         source "$REPO_DIR/.venv/bin/activate"
+        # Verify the venv is using the correct Python
+        VENV_PYTHON_VER=$(python --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+        echo "Virtual environment Python version: $VENV_PYTHON_VER"
         pip install --upgrade pip setuptools wheel
         # Install PyTorch with CUDA support
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
@@ -157,7 +163,27 @@ elif command -v uv &> /dev/null; then
     if ! command -v uv &> /dev/null && [ -f "$HOME/.cargo/bin/uv" ]; then
         export PATH="$HOME/.cargo/bin:$PATH"
     fi
-    [ -d "$REPO_DIR/.venv" ] || uv venv "$REPO_DIR/.venv" --python 3.10 || uv venv "$REPO_DIR/.venv"
+    # Remove old venv if it exists
+    if [ -d "$REPO_DIR/.venv" ]; then
+        echo "Removing old virtual environment..."
+        rm -rf "$REPO_DIR/.venv"
+    fi
+    # Create fresh venv
+    uv venv "$REPO_DIR/.venv" --python 3.10 || uv venv "$REPO_DIR/.venv" || {
+        echo "uv venv failed, trying with system Python 3.10+..."
+        # Find Python 3.10+
+        for py in python3.10 python3.11 python3.12 python3; do
+            if command -v "$py" &> /dev/null; then
+                PY_VER=$("$py" --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+                PY_MAJOR=$(echo "$PY_VER" | cut -d. -f1)
+                PY_MINOR=$(echo "$PY_VER" | cut -d. -f2)
+                if [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 10 ]; then
+                    "$py" -m venv "$REPO_DIR/.venv"
+                    break
+                fi
+            fi
+        done
+    }
     source "$REPO_DIR/.venv/bin/activate"
     uv sync --extra gpu || {
         echo "uv sync failed, trying manual installation..."
