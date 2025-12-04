@@ -221,3 +221,8 @@ If you find nanochat helpful in your research cite simply as:
 ## License
 
 MIT
+
+Signing into amarel
+
+$ ssh ad2046@ilab1.cs.rutgers.edu
+$ ssh ad2046@amarel.rutgers.edu
