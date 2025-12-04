@@ -29,7 +29,8 @@ echo "=========================================="
 # The search results suggest this is a common first step on HPC systems.
 echo "Loading anaconda3 module..."
 module purge
-module load anaconda3/2023.03 || { echo "ERROR: Failed to load anaconda3 module. Check module availability."; exit 1; }
+module use /projects/community/modulefiles
+module load anaconda/2023.10-bd387 || { echo "ERROR: Failed to load anaconda3 module. Check module availability."; exit 1; }
 
 # Determine repository location
 if [ -n "$SLURM_SUBMIT_DIR" ]; then
