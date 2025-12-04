@@ -23,17 +23,7 @@ echo "User: $USER"
 echo "Home: $HOME"
 echo "=========================================="
 
-# --- 🎯 LOCAL CONDA ENVIRONMENT SETUP (GLIBC & Python 3.10 Compatible) ---
-
-CONDA_ENV_NAME="nanochat_torch_310"
-
-# 1. Initialize Local Conda
-echo "Sourcing user's .bashrc to initialize local Conda installation..."
-# This is crucial for SLURM jobs to recognize the local 'conda' command.
-source "$HOME/.bashrc" || { echo "ERROR: Failed to source ~/.bashrc. Check local Miniconda installation."; exit 1; }
-
-# Initialize Conda for the current shell
-eval "$(conda shell.bash hook)"
+# --- 🎯 UV ENVIRONMENT SETUP (Python 3.10 & PyTorch) ---
 
 # Determine repository location
 if [ -n "$SLURM_SUBMIT_DIR" ]; then
@@ -50,28 +40,68 @@ export NANOCHAT_BASE_DIR="$HOME/.cache/nanochat"
 mkdir -p "$NANOCHAT_BASE_DIR"
 echo "Cache directory: $NANOCHAT_BASE_DIR"
 
-# 2. Check for and activate/create the conda environment
-if conda env list | grep -q "$CONDA_ENV_NAME"; then
-    echo "Activating existing local conda environment '$CONDA_ENV_NAME'..."
-    conda activate "$CONDA_ENV_NAME"
-else
-    echo "Creating new local conda environment '$CONDA_ENV_NAME' with **Python 3.10**..."
-    # Create environment with Python 3.10
-    conda create -n "$CONDA_ENV_NAME" python=3.10 -y || { echo "ERROR: Conda environment creation failed."; exit 1; }
-    conda activate "$CONDA_ENV_NAME"
-    
-    # 3. Install PyTorch (CUDA 11.8 for GLIBC compatibility)
-    echo "Installing PyTorch 2.1.2 with CUDA 11.8 for GLIBC compatibility..."
-    conda install pytorch=2.1.2 torchvision=0.16.2 torchaudio=2.1.2 \
-        cuda-version=11.8 -c pytorch -c conda-forge -y || { echo "ERROR: PyTorch installation failed."; exit 1; }
-    
-    # 4. Install other dependencies
-    echo "Installing other dependencies..."
-    pip install --upgrade pip setuptools wheel
-    pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
-        regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3
-    pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
+# 1. Install uv if not already installed
+echo "Checking for uv..."
+if ! command -v uv &> /dev/null; then
+    echo "Installing uv..."
+    # Try to source .bashrc first (uv might be in PATH after sourcing)
+    source "$HOME/.bashrc" 2>/dev/null || true
+    if ! command -v uv &> /dev/null; then
+        # Install uv to ~/.cargo/bin (default location)
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        export PATH="$HOME/.cargo/bin:$PATH"
+    fi
 fi
+
+# Verify uv is available
+if ! command -v uv &> /dev/null; then
+    echo "ERROR: uv is not available. Please install it manually:"
+    echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
+    exit 1
+fi
+
+echo "✓ uv is available: $(which uv)"
+
+# 2. Create virtual environment with Python 3.10 (if it doesn't exist)
+if [ ! -d ".venv" ]; then
+    echo "Creating virtual environment with Python 3.10..."
+    uv venv --python 3.10 || {
+        echo "WARNING: uv venv with Python 3.10 failed, trying with system Python 3.10+..."
+        # Fallback: try to find Python 3.10+ and create venv
+        for py in python3.10 python3.11 python3.12 python3; do
+            if command -v "$py" &> /dev/null; then
+                PY_VER=$("$py" --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+                PY_MAJOR=$(echo "$PY_VER" | cut -d. -f1)
+                PY_MINOR=$(echo "$PY_VER" | cut -d. -f2)
+                if [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 10 ]; then
+                    "$py" -m venv .venv
+                    echo "Created venv with $py ($PY_VER)"
+                    break
+                fi
+            fi
+        done
+    }
+else
+    echo "Virtual environment already exists at .venv"
+fi
+
+# 3. Activate virtual environment
+echo "Activating virtual environment..."
+source .venv/bin/activate || { echo "ERROR: Failed to activate virtual environment"; exit 1; }
+
+# 4. Install dependencies using uv (includes PyTorch with CUDA 11.8 for GLIBC compatibility)
+echo "Installing dependencies with uv (including PyTorch with CUDA 11.8 for GLIBC compatibility)..."
+uv sync --extra gpu || {
+    echo "WARNING: uv sync failed, trying manual installation with compatible PyTorch version..."
+    pip install --upgrade pip setuptools wheel
+    # Install PyTorch 2.1.2 with CUDA 11.8 (compatible with manylinux_2_17 / older GLIBC)
+    echo "Installing PyTorch 2.1.2 with CUDA 11.8..."
+    pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+    # Install other dependencies
+    pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
+        regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3 pandas>=2.0.0
+    pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
+}
 
 # --- 🩺 VERIFICATION ---
 
@@ -82,7 +112,7 @@ nvidia-smi || echo "nvidia-smi not available"
 echo "=========================================="
 
 # Check Python and PyTorch
-echo "Conda Environment: $CONDA_ENV_NAME"
+echo "Virtual Environment: .venv"
 echo "Python version: $(python --version 2>&1 || echo 'ERROR: Python not found')"
 echo "Python path: $(which python)"
 if python -c "import sys; print(f'Python {sys.version}')" 2>&1; then

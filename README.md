@@ -226,3 +226,6 @@ Signing into amarel
 
 $ ssh ad2046@ilab1.cs.rutgers.edu
 $ ssh ad2046@amarel.rutgers.edu
+$ sbatch run_gsm8k_eval_amarel.sh
+$ sacct
+$ tail -f gsm8k_eval_48617250.out
