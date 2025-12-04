@@ -140,6 +140,11 @@ def load_model_from_dir(checkpoints_dir, device, phase, model_tag=None, step=Non
     return model, tokenizer, meta_data
 
 def load_model(source, *args, **kwargs):
+        # Check if source is a HuggingFace repo ID (contains '/')
+    if isinstance(source, str) and '/' in source and not source in ["base", "mid", "sft", "rl"]:
+        # It's a HuggingFace repo ID
+        return load_model_from_huggingface(source, *args, **kwargs)
+        
     model_dir = {
         "base": "base_checkpoints",
         "mid": "mid_checkpoints",
@@ -149,3 +154,167 @@ def load_model(source, *args, **kwargs):
     base_dir = get_base_dir()
     checkpoints_dir = os.path.join(base_dir, model_dir)
     return load_model_from_dir(checkpoints_dir, *args, **kwargs)
+
+def load_model_from_huggingface(hf_repo_id: str, step: int = None, device=None, phase="eval", model_tag=None, use_standard_structure=False, checkpoint_type="base"):
+    """
+    Load a nanochat model from a HuggingFace repository.
+    
+    Args:
+        hf_repo_id: HuggingFace repository ID (e.g., "sdobson/nanochat" or "karpathy/nanochat-d34")
+        step: Checkpoint step to load (e.g., 650, 169150). If None, will try to find the latest step.
+        device: PyTorch device to load the model on. If None, will auto-detect.
+        phase: "train" or "eval"
+        model_tag: Model tag for standard directory structure (e.g., "d34"). If None and use_standard_structure=True, will try to infer from repo name.
+        use_standard_structure: If True, place files in standard structure instead of hf_checkpoints/
+        checkpoint_type: Type of checkpoint directory when using standard structure: "base", "mid", "sft", "rl" (default: "base")
+    
+    Returns:
+        model, tokenizer, meta_data
+    """
+    from huggingface_hub import hf_hub_download
+    import tempfile
+    import shutil
+    
+    # Auto-detect device if not provided
+    if device is None:
+        from nanochat.common import autodetect_device_type
+        device_type = autodetect_device_type()
+        device = torch.device(device_type)
+        log0(f"Auto-detected device: {device}")
+    
+    base_dir = get_base_dir()
+    
+    # Determine where to store the model files
+    if use_standard_structure:
+        # Use standard directory structure (e.g., base_checkpoints/d34/ or chatsft_checkpoints/d34/)
+        if model_tag is None:
+            # Try to infer model_tag from repo name (e.g., "nanochat-d34" -> "d34")
+            repo_name = hf_repo_id.split("/")[-1]
+            if "d34" in repo_name or "d32" in repo_name or "d20" in repo_name:
+                # Extract depth from repo name
+                import re
+                match = re.search(r'd(\d+)', repo_name)
+                if match:
+                    model_tag = f"d{match.group(1)}"
+                else:
+                    model_tag = repo_name.replace("nanochat-", "")
+            else:
+                model_tag = repo_name.replace("nanochat-", "")
+        
+        # Map checkpoint_type to directory name
+        checkpoint_dir_map = {
+            "base": "base_checkpoints",
+            "mid": "mid_checkpoints",
+            "sft": "chatsft_checkpoints",
+            "rl": "chatrl_checkpoints",
+        }
+        checkpoint_dir_name = checkpoint_dir_map.get(checkpoint_type, "base_checkpoints")
+        cache_dir = os.path.join(base_dir, checkpoint_dir_name)
+        log0(f"Using standard directory structure: {checkpoint_dir_name}/{model_tag}")
+    else:
+        # Use HuggingFace-specific cache directory
+        cache_dir = os.path.join(base_dir, "hf_checkpoints", hf_repo_id.replace("/", "_"))
+    
+    os.makedirs(cache_dir, exist_ok=True)
+    
+    # If step is not provided, try to find the latest step
+    if step is None:
+        # Try to list files and find the highest step number
+        try:
+            from huggingface_hub import list_repo_files
+            files = list_repo_files(repo_id=hf_repo_id, repo_type="model")
+            model_files = [f for f in files if f.startswith("model_") and f.endswith(".pt")]
+            if model_files:
+                # Extract step numbers and find the max
+                steps = []
+                for f in model_files:
+                    try:
+                        step_num = int(f.replace("model_", "").replace(".pt", ""))
+                        steps.append(step_num)
+                    except ValueError:
+                        continue
+                if steps:
+                    step = max(steps)
+                    log0(f"No step provided, using latest step: {step}")
+        except Exception as e:
+            log0(f"Could not auto-detect step, trying step 650: {e}")
+            step = 650  # Default fallback
+    
+    assert step is not None, "Could not determine checkpoint step"
+    
+    # Determine checkpoint directory
+    if use_standard_structure and model_tag:
+        # Use standard structure: base_checkpoints/model_tag/
+        checkpoint_dir = os.path.join(cache_dir, model_tag)
+    else:
+        # Use step-based directory: hf_checkpoints/repo/step_XXXXXX/
+        checkpoint_dir = os.path.join(cache_dir, f"step_{step:06d}")
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    
+    # Tokenizer files go to the base tokenizer directory (shared across checkpoints)
+    tokenizer_dir = os.path.join(base_dir, "tokenizer")
+    os.makedirs(tokenizer_dir, exist_ok=True)
+    
+    # Files to download to checkpoint directory
+    checkpoint_files = {
+        f"model_{step:06d}.pt": f"model_{step:06d}.pt",
+        f"meta_{step:06d}.json": f"meta_{step:06d}.json",
+    }
+    
+    # Files to download to tokenizer directory
+    tokenizer_files = {
+        "token_bytes.pt": "token_bytes.pt",
+        "tokenizer.pkl": "tokenizer.pkl",
+    }
+    
+    log0(f"Downloading model files from {hf_repo_id} (step {step})...")
+    
+    # Download checkpoint files
+    for hf_filename, local_filename in checkpoint_files.items():
+        local_path = os.path.join(checkpoint_dir, local_filename)
+        if not os.path.exists(local_path):
+            try:
+                downloaded_path = hf_hub_download(
+                    repo_id=hf_repo_id,
+                    filename=hf_filename,
+                    cache_dir=cache_dir,
+                    local_dir=checkpoint_dir,
+                    local_dir_use_symlinks=False,
+                )
+                # Move to the expected location if needed
+                if downloaded_path != local_path:
+                    if os.path.exists(local_path):
+                        os.remove(local_path)
+                    shutil.move(downloaded_path, local_path)
+                log0(f"Downloaded {hf_filename}")
+            except Exception as e:
+                raise RuntimeError(f"Failed to download {hf_filename} from {hf_repo_id}: {e}")
+        else:
+            log0(f"Using cached {local_filename}")
+    
+    # Download tokenizer files to the tokenizer directory
+    for hf_filename, local_filename in tokenizer_files.items():
+        local_path = os.path.join(tokenizer_dir, local_filename)
+        if not os.path.exists(local_path):
+            try:
+                downloaded_path = hf_hub_download(
+                    repo_id=hf_repo_id,
+                    filename=hf_filename,
+                    cache_dir=cache_dir,
+                    local_dir=tokenizer_dir,
+                    local_dir_use_symlinks=False,
+                )
+                # Move to the expected location if needed
+                if downloaded_path != local_path:
+                    if os.path.exists(local_path):
+                        os.remove(local_path)
+                    shutil.move(downloaded_path, local_path)
+                log0(f"Downloaded {hf_filename} to tokenizer directory")
+            except Exception as e:
+                log0(f"Warning: Could not download {hf_filename}: {e}")
+                # Tokenizer files might not be critical if they already exist locally
+        else:
+            log0(f"Using cached {local_filename} in tokenizer directory")
+    
+    # Now use the existing build_model function to load
+    return build_model(checkpoint_dir, step, device, phase)
