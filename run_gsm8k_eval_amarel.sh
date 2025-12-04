@@ -372,4 +372,3 @@ echo "=========================================="
 echo ""
 echo "Output files:"
 ls -lh "$OUTPUT_DIR"
-

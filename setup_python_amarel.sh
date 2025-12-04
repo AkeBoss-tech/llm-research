@@ -46,13 +46,65 @@ else
     cd "Python-$PYTHON_VERSION"
     
     echo "Configuring Python build..."
-    ./configure \
-        --prefix="$PYTHON_DIR" \
-        CXX=g++ \
-        --with-ensurepip=install \
-        LDFLAGS="-L$LIBFFI_DIR/lib64" \
-        CPPFLAGS="-I$LIBFFI_DIR/include" \
-        PKG_CONFIG_PATH="$LIBFFI_DIR/lib64/pkgconfig"
+    # Check for OpenSSL (required for SSL/TLS support - needed by pip)
+    OPENSSL_PREFIX=""
+    if [ -d "/usr/include/openssl" ] || [ -f "/usr/include/openssl/ssl.h" ]; then
+        # System OpenSSL available
+        OPENSSL_PREFIX="/usr"
+        echo "Using system OpenSSL at $OPENSSL_PREFIX"
+    elif [ -d "/usr/local/include/openssl" ] || [ -f "/usr/local/include/openssl/ssl.h" ]; then
+        OPENSSL_PREFIX="/usr/local"
+        echo "Using OpenSSL at $OPENSSL_PREFIX"
+    else
+        echo "WARNING: OpenSSL not found in standard locations."
+        echo "Checking for OpenSSL development packages..."
+        # Try to find OpenSSL via pkg-config or locate
+        if command -v pkg-config &> /dev/null; then
+            OPENSSL_CFLAGS=$(pkg-config --cflags openssl 2>/dev/null || echo "")
+            OPENSSL_LDFLAGS=$(pkg-config --libs openssl 2>/dev/null || echo "")
+            if [ -n "$OPENSSL_CFLAGS" ]; then
+                echo "Found OpenSSL via pkg-config"
+                OPENSSL_PREFIX="system"
+            fi
+        fi
+        if [ "$OPENSSL_PREFIX" != "system" ]; then
+            echo "ERROR: OpenSSL not found. Python will be built without SSL support."
+            echo "pip will not be able to download packages from PyPI."
+            echo "Please install OpenSSL development packages or specify OPENSSL_PREFIX manually."
+            exit 1
+        fi
+    fi
+    
+    # Configure Python with OpenSSL support
+    if [ "$OPENSSL_PREFIX" = "system" ]; then
+        # Use pkg-config for OpenSSL
+        ./configure \
+            --prefix="$PYTHON_DIR" \
+            CXX=g++ \
+            --with-ensurepip=install \
+            --with-openssl \
+            LDFLAGS="-L$LIBFFI_DIR/lib64 $OPENSSL_LDFLAGS" \
+            CPPFLAGS="-I$LIBFFI_DIR/include $OPENSSL_CFLAGS" \
+            PKG_CONFIG_PATH="$LIBFFI_DIR/lib64/pkgconfig"
+    elif [ -n "$OPENSSL_PREFIX" ]; then
+        ./configure \
+            --prefix="$PYTHON_DIR" \
+            CXX=g++ \
+            --with-ensurepip=install \
+            --with-openssl="$OPENSSL_PREFIX" \
+            LDFLAGS="-L$LIBFFI_DIR/lib64 -L$OPENSSL_PREFIX/lib64" \
+            CPPFLAGS="-I$LIBFFI_DIR/include -I$OPENSSL_PREFIX/include" \
+            PKG_CONFIG_PATH="$LIBFFI_DIR/lib64/pkgconfig"
+    else
+        # Fallback without OpenSSL (will fail for pip, but at least Python builds)
+        ./configure \
+            --prefix="$PYTHON_DIR" \
+            CXX=g++ \
+            --with-ensurepip=install \
+            LDFLAGS="-L$LIBFFI_DIR/lib64" \
+            CPPFLAGS="-I$LIBFFI_DIR/include" \
+            PKG_CONFIG_PATH="$LIBFFI_DIR/lib64/pkgconfig"
+    fi
     
     echo "Building Python (this may take 10-20 minutes)..."
     make -j 8
@@ -88,6 +140,18 @@ echo "Step 4: Verifying installation..."
 source "$HOME/.bashrc" 2>/dev/null || true
 if [ -f "$PYTHON_DIR/bin/python3" ]; then
     "$PYTHON_DIR/bin/python3" --version
+    
+    # Check if SSL module is available
+    echo ""
+    echo "Checking SSL support..."
+    if "$PYTHON_DIR/bin/python3" -c "import ssl; print('SSL module: OK')" 2>/dev/null; then
+        echo "✓ SSL support is available (pip will work)"
+    else
+        echo "✗ WARNING: SSL module not available (pip will NOT work)"
+        echo "  Python was built without OpenSSL support."
+        echo "  You may need to rebuild with OpenSSL development packages installed."
+    fi
+    
     echo ""
     echo "=========================================="
     echo "SUCCESS! Python $PYTHON_VERSION is installed"
