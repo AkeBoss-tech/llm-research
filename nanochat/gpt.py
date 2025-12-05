@@ -35,7 +35,16 @@ class GPTConfig:
 
 def norm(x):
     # Purely functional rmsnorm with no learnable params
-    return F.rms_norm(x, (x.size(-1),))
+    if hasattr(F, 'rms_norm'):
+        return F.rms_norm(x, (x.size(-1),))
+    else:
+        # Fallback for PyTorch < 2.4
+        # RMSNorm formula: x * rsqrt(mean(x^2))
+        input_dtype = x.dtype
+        x = x.to(torch.float32)
+        variance = x.pow(2).mean(-1, keepdim=True)
+        x = x * torch.rsqrt(variance + 1e-6)
+        return x.to(input_dtype)
 
 
 def apply_rotary_emb(x, cos, sin):
