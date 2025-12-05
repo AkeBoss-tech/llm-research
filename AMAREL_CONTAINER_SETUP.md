@@ -4,11 +4,14 @@ This guide explains how to run the project on the Amarel HPC cluster using a con
 
 ## 1. Build the Docker Image (Locally)
 
-You generally cannot build Docker images directly on Amarel. Build it on your local machine:
+You generally cannot build Docker images directly on Amarel. Build it on your local machine.
+
+**Important for Mac (Apple Silicon) users:** You must specify `--platform linux/amd64` to build a compatible image for the HPC cluster.
 
 ```bash
 # Build the image (replace 'yourusername' with your Docker Hub username)
-docker build -t yourusername/nanochat:latest .
+# The --platform linux/amd64 flag is CRITICAL if building on an Apple Silicon Mac
+docker build --platform linux/amd64 -t yourusername/nanochat:latest .
 
 # Push to Docker Hub (or another registry)
 docker push yourusername/nanochat:latest

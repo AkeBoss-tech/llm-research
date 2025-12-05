@@ -23,7 +23,7 @@ echo "User: $USER"
 echo "Home: $HOME"
 echo "=========================================="
 
-# --- 🎯 UV ENVIRONMENT SETUP (Python 3.10 & PyTorch) ---
+# --- 🐍 CONDA ENVIRONMENT SETUP ---
 
 # Determine repository location
 if [ -n "$SLURM_SUBMIT_DIR" ]; then
@@ -40,84 +40,20 @@ export NANOCHAT_BASE_DIR="$HOME/.cache/nanochat"
 mkdir -p "$NANOCHAT_BASE_DIR"
 echo "Cache directory: $NANOCHAT_BASE_DIR"
 
-# 1. Install uv if not already installed
-echo "Checking for uv..."
-if ! command -v uv &> /dev/null; then
-    echo "Installing uv..."
-    # Try to source .bashrc first (uv might be in PATH after sourcing)
-    source "$HOME/.bashrc" 2>/dev/null || true
-    if ! command -v uv &> /dev/null; then
-        # Install uv to ~/.cargo/bin (default location)
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        export PATH="$HOME/.cargo/bin:$PATH"
+# Activate Conda Environment
+echo "Activating Conda environment: nanochat_proper"
+source ~/.bashrc  # Ensure conda is initialized
+# Fallback if .bashrc doesn't initialize conda correctly in non-interactive shell
+if ! command -v conda &> /dev/null; then
+    if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+        source "$HOME/miniconda3/etc/profile.d/conda.sh"
+    elif [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
+        source "$HOME/anaconda3/etc/profile.d/conda.sh"
     fi
 fi
 
-# Verify uv is available
-if ! command -v uv &> /dev/null; then
-    echo "ERROR: uv is not available. Please install it manually:"
-    echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
-    exit 1
-fi
-
-echo "✓ uv is available: $(which uv)"
-
-# 2. Create virtual environment with Python 3.10 (if it doesn't exist)
-if [ ! -d ".venv" ]; then
-    echo "Creating virtual environment with Python 3.10..."
-    uv venv --python 3.10 || {
-        echo "WARNING: uv venv with Python 3.10 failed, trying with system Python 3.10+..."
-        # Fallback: try to find Python 3.10+ and create venv
-        for py in python3.10 python3.11 python3.12 python3; do
-            if command -v "$py" &> /dev/null; then
-                PY_VER=$("$py" --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
-                PY_MAJOR=$(echo "$PY_VER" | cut -d. -f1)
-                PY_MINOR=$(echo "$PY_VER" | cut -d. -f2)
-                if [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -ge 10 ]; then
-                    "$py" -m venv .venv
-                    echo "Created venv with $py ($PY_VER)"
-                    break
-                fi
-            fi
-        done
-    }
-else
-    echo "Virtual environment already exists at .venv"
-fi
-
-# 3. Activate virtual environment
-echo "Activating virtual environment..."
-source .venv/bin/activate || { echo "ERROR: Failed to activate virtual environment"; exit 1; }
-
-# 4. Install dependencies using uv (includes PyTorch with CUDA 11.8 for GLIBC compatibility)
-echo "Installing dependencies with uv (including PyTorch with CUDA 11.8 for GLIBC compatibility)..."
-# Remove lock file if it exists to force regeneration with correct PyTorch version
-if [ -f "uv.lock" ]; then
-    echo "Removing old uv.lock to regenerate with compatible PyTorch version..."
-    rm -f uv.lock
-fi
-
-# First, install dependencies without the local package (to avoid rustbpe build issues)
-echo "Installing dependencies (excluding local package)..."
-uv sync --extra gpu --no-install-project || {
-    echo "WARNING: uv sync failed, trying manual installation with compatible PyTorch version..."
-    pip install --upgrade pip setuptools wheel
-    # Install PyTorch 2.1.2 with CUDA 11.8 (compatible with manylinux_2_17 / older GLIBC)
-    echo "Installing PyTorch 2.1.2 with CUDA 11.8..."
-    pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
-    # Install other dependencies
-    pip install datasets>=4.0.0 fastapi>=0.117.1 files-to-prompt>=0.6 psutil>=7.1.0 \
-        regex>=2025.9.1 tiktoken>=0.11.0 tokenizers>=0.22.0 uvicorn>=0.36.0 wandb>=0.21.3 pandas>=2.0.0
-}
-
-# Try to install the local package with --no-build-isolation (uses venv Python with SSL)
-echo "Installing local nanochat package..."
-pip install "maturin>=1.7,<2.0" || echo "Warning: maturin installation failed, rustbpe may not work"
-# Try to install in editable mode with no build isolation to avoid SSL issues
-pip install -e . --no-build-isolation 2>/dev/null || {
-    echo "Warning: Could not install nanochat in editable mode (rustbpe may not be available)"
-    echo "  This is usually fine if you don't need the rustbpe tokenizer"
-}
+conda activate nanochat_proper || { echo "ERROR: Failed to activate conda environment 'nanochat_proper'"; exit 1; }
+echo "Python path: $(which python)"
 
 # --- 🩺 VERIFICATION ---
 
@@ -128,9 +64,7 @@ nvidia-smi || echo "nvidia-smi not available"
 echo "=========================================="
 
 # Check Python and PyTorch
-echo "Virtual Environment: .venv"
 echo "Python version: $(python --version 2>&1 || echo 'ERROR: Python not found')"
-echo "Python path: $(which python)"
 if python -c "import sys; print(f'Python {sys.version}')" 2>&1; then
     echo "PyTorch version: $(python -c 'import torch; print(torch.__version__)' 2>&1 || echo 'PyTorch not installed')"
     # Check CUDA
