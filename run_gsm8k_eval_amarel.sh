@@ -55,6 +55,10 @@ fi
 conda activate nanochat_proper || { echo "ERROR: Failed to activate conda environment 'nanochat_proper'"; exit 1; }
 echo "Python path: $(which python)"
 
+# Load required modules
+module use /projects/community/modulefiles
+module load gcc/12.1
+
 # --- 🩺 VERIFICATION ---
 
 # Verify GPU availability

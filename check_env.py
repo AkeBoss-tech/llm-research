@@ -1,5 +1,9 @@
 import sys
 import os
+try:
+    import cmake  # Preload newer libstdc++ for pandas compatibility on older systems
+except ImportError:
+    pass
 
 def check_import(module_name):
     try:

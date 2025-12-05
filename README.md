@@ -229,3 +229,19 @@ $ ssh ad2046@amarel.rutgers.edu
 $ sbatch run_gsm8k_eval_amarel.sh
 $ sacct
 $ tail -f gsm8k_eval_48617250.out
+
+(nanochat_proper) [ad2046@amarel1 llm-research]$ module use /projects/community/modulefiles
+(nanochat_proper) [ad2046@amarel1 llm-research]$ module load gcc/12.1
+(nanochat_proper) [ad2046@amarel1 llm-research]$ go
+-bash: go: command not found
+(nanochat_proper) [ad2046@amarel1 llm-research]$ cd ..
+(nanochat_proper) [ad2046@amarel1 ~]$ ls
+Miniconda3-4.10.3-Linux-x86_64.sh  go                           libffi        miniconda3  python
+docs                               go1.23.1.linux-amd64.tar.gz  llm-research  projects
+(nanochat_proper) [ad2046@amarel1 ~]$ cargo --version
+cargo 1.91.1 (ea2d97820 2025-10-10)
+(nanochat_proper) [ad2046@amarel1 ~]$ export PATH=$PATH:$HOME/go/bin 
+
+export CC=gcc
+module load cmake/3.31.8-rdp135
+uv pip install "pyarrow<15" "pandas<2.2" datasets
