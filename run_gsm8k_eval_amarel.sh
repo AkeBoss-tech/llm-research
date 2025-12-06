@@ -36,6 +36,7 @@ cd "$REPO_DIR" || { echo "ERROR: Cannot change to repository directory"; exit 1;
 
 # Set up environment variables
 export OMP_NUM_THREADS=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export NANOCHAT_BASE_DIR="$HOME/.cache/nanochat"
 mkdir -p "$NANOCHAT_BASE_DIR"
 echo "Cache directory: $NANOCHAT_BASE_DIR"
