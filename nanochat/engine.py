@@ -210,19 +210,41 @@ class Engine:
         # 1) Run a batch 1 prefill of the prompt tokens
         m = self.model.config
         kv_model_kwargs = {"num_heads": m.n_kv_head, "head_dim": m.n_embd // m.n_head, "num_layers": m.n_layer}
+        
+        # Calculate available memory to determine safe cache size
+        if device.type == 'cuda':
+            free_mem, total_mem = torch.cuda.mem_get_info(device)
+            # Reserve 2GB for other overheads
+            reserved_mem = 2 * 1024 * 1024 * 1024
+            safe_mem = max(free_mem - reserved_mem, 1024 * 1024 * 1024) # At least 1GB
+            
+            # Estimate memory per token: 2 (k+v) * layers * heads * head_dim * 2 (bfloat16 bytes)
+            bytes_per_token = 2 * m.n_layer * m.n_kv_head * (m.n_embd // m.n_head) * 2
+            max_safe_tokens = safe_mem // bytes_per_token
+            
+            # Adjust kv_length_hint based on memory
+            default_hint = (len(tokens) + max_tokens) if max_tokens is not None else self.model.config.sequence_len
+            kv_length_hint = min(default_hint, max_safe_tokens)
+            
+            # Ensure we have at least space for prompt + small generation
+            if kv_length_hint < len(tokens) + 10:
+                print(f"Warning: Low memory. Cache size limited to {kv_length_hint} tokens.")
+        else:
+            kv_length_hint = (len(tokens) + max_tokens) if max_tokens is not None else self.model.config.sequence_len
+
         kv_cache_prefill = KVCache(
             batch_size=1,
             seq_len=len(tokens),
             **kv_model_kwargs,
         )
         ids = torch.tensor([tokens], dtype=torch.long, device=device)
-        logits = self.model.forward(ids, kv_cache=kv_cache_prefill)
+        with torch.no_grad():
+            logits = self.model.forward(ids, kv_cache=kv_cache_prefill)
         logits = logits[:, -1, :]
         next_ids = sample_next_token(logits, rng, temperature, top_k)  # (B, 1)
         sampled_tokens = next_ids[:, 0].tolist()
 
         # 2) Replicate the KV cache for each sample/row
-        kv_length_hint = (len(tokens) + max_tokens) if max_tokens is not None else self.model.config.sequence_len
         kv_cache_decode = KVCache(
             batch_size=num_samples,
             seq_len=kv_length_hint,
@@ -230,6 +252,11 @@ class Engine:
         )
         kv_cache_decode.prefill(kv_cache_prefill)
         del kv_cache_prefill # no need to keep this memory around
+        
+        # Clean up intermediate tensors
+        del ids, logits, next_ids
+        if device.type == 'cuda':
+            torch.cuda.empty_cache()
 
         # 3) Initialize states for each sample
         row_states = [RowState(tokens.copy()) for _ in range(num_samples)]

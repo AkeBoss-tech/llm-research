@@ -81,6 +81,35 @@ def evaluate_model_detailed(model_name, config, device, autocast_ctx, max_proble
     print0(f"Model checkpoint directory: {checkpoint_dir}")
     print0(f"Model config: {meta.get('model_config', 'N/A')}")
     
+    # Force model to float16 (or bfloat16) to save memory if requested
+    # This is critical because checkpoints might be in float32
+    # We access the global ARGS to check dtype
+    if 'ARGS' in globals() and (device.type == 'cuda' or device.type == 'mps'):
+        target_dtype = None
+        if ARGS.dtype == 'bfloat16':
+            # Check if bfloat16 is supported (Ampere+ or MPS)
+            # Note: MPS support for bfloat16 is experimental/limited in some versions, but we allow it if requested
+            if device.type == 'cuda' and torch.cuda.is_bf16_supported():
+                target_dtype = torch.bfloat16
+                print0("Converting model to bfloat16...")
+            elif device.type == 'mps':
+                 # MPS technically supports bf16 in newer macOS/torch, but float16 is safer default
+                 target_dtype = torch.bfloat16
+                 print0("Converting model to bfloat16 (MPS)...")
+            else:
+                print0("Warning: bfloat16 requested but not supported on this GPU. Falling back to float16.")
+                target_dtype = torch.float16
+        elif ARGS.dtype == 'float16':
+            target_dtype = torch.float16
+            print0(f"Converting model to float16 ({device.type})...")
+            
+        if target_dtype is not None:
+            model.to(dtype=target_dtype)
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            if device.type == 'mps':
+                torch.mps.empty_cache()
+    
     # Create engine
     engine = Engine(model, tokenizer)
     
@@ -234,6 +263,10 @@ def main():
     parser.add_argument('--no-save', action='store_true',
                         help='Do not save results to file')
     args = parser.parse_args()
+    
+    # Pass args to evaluate_model_detailed so it can access args.dtype
+    global ARGS
+    ARGS = args
     
     # Setup device
     device_type = autodetect_device_type() if args.device_type == "" else args.device_type

@@ -12,6 +12,14 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=$USER@rutgers.edu
 
+# ==========================================
+# Amarel Cluster Benchmark Configuration
+# ==========================================
+# Use this script for running benchmarks on the Amarel cluster.
+# It uses SLURM for scheduling and torchrun for multi-GPU (DDP) support.
+#
+# Usage: sbatch run_benchmark_amarel.sh
+
 # Print job information
 echo "=========================================="
 echo "Job ID: $SLURM_JOB_ID"
@@ -44,7 +52,6 @@ echo "Cache directory: $NANOCHAT_BASE_DIR"
 # Activate Conda Environment
 echo "Activating Conda environment: nanochat_proper"
 source ~/.bashrc  # Ensure conda is initialized
-# Fallback if .bashrc doesn't initialize conda correctly in non-interactive shell
 if ! command -v conda &> /dev/null; then
     if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
         source "$HOME/miniconda3/etc/profile.d/conda.sh"
@@ -66,22 +73,6 @@ module load gcc/12.1
 echo "=========================================="
 echo "GPU Information:"
 nvidia-smi || echo "nvidia-smi not available"
-echo "=========================================="
-
-# Check Python and PyTorch
-echo "Python version: $(python --version 2>&1 || echo 'ERROR: Python not found')"
-if python -c "import sys; print(f'Python {sys.version}')" 2>&1; then
-    echo "PyTorch version: $(python -c 'import torch; print(torch.__version__)' 2>&1 || echo 'PyTorch not installed')"
-    # Check CUDA
-    if python -c 'import torch; print(torch.cuda.is_available())' 2>&1 | grep -q True; then
-        echo "CUDA available: True"
-        echo "CUDA device: $(python -c 'import torch; print(torch.cuda.get_device_name(0))' 2>&1)"
-    else
-        echo "CUDA available: False. Check PyTorch/CUDA installation and GPU allocation."
-    fi
-else
-    echo "ERROR: Python is not working correctly."
-fi
 echo "=========================================="
 
 # --- 🚀 RUN JOB ---
@@ -220,3 +211,4 @@ echo "=========================================="
 echo ""
 echo "Output files:"
 ls -lh "$OUTPUT_DIR"
+
