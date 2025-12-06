@@ -7,7 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --partition=gpu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=$USER@rutgers.edu
@@ -103,7 +103,10 @@ echo "=========================================="
 
 # Run the evaluation script
 cd "$REPO_DIR"
-python "$REPO_DIR/eval_gsm8k_all_models.py" \
+# Use torchrun to utilize both GPUs (DDP)
+# We use a random port based on job ID to avoid collisions
+PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
+torchrun --nproc_per_node=2 --master_port=$PORT "$REPO_DIR/eval_gsm8k_all_models.py" \
     --models default d32 d34 \
     --max-problems 1000 \
     --num-samples 1 \

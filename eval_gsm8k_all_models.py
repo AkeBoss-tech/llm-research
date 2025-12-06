@@ -10,6 +10,7 @@ import os
 import json
 import argparse
 import torch
+import gc
 from datetime import datetime
 from contextlib import nullcontext
 from nanochat.common import compute_init, compute_cleanup, autodetect_device_type, get_base_dir, print0, get_dist_info
@@ -169,8 +170,14 @@ def evaluate_model_detailed(model_name, config, device, autocast_ctx, max_proble
         dist.all_reduce(total_tensor, op=dist.ReduceOp.SUM)
         num_passed = num_passed_tensor.item()
         total = total_tensor.item()
-        # Note: detailed_results would need to be gathered across ranks in a real DDP setup
-        # For now, we'll just use rank 0's results
+        
+        # Gather detailed results from all ranks
+        all_detailed_results = [None for _ in range(ddp_world_size)]
+        dist.all_gather_object(all_detailed_results, detailed_results)
+        # Flatten list of lists
+        detailed_results = [item for sublist in all_detailed_results for item in sublist]
+        # Sort by problem_id to keep them in order
+        detailed_results.sort(key=lambda x: x['problem_id'])
     
     accuracy = num_passed / total if total > 0 else 0.0
     
@@ -179,6 +186,13 @@ def evaluate_model_detailed(model_name, config, device, autocast_ctx, max_proble
     print0(f"GSM8K Accuracy: {100 * accuracy:.2f}% ({num_passed}/{total})")
     print0(f"{'=' * 80}\n")
     
+    # Explicitly clean up model resources
+    del model
+    del tokenizer
+    del engine
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     return {
         'model_name': model_name,
         'hf_repo_id': config['hf_repo_id'],
@@ -260,8 +274,14 @@ def main():
             print0(f"Error evaluating {model_name}: {e}")
             import traceback
             traceback.print_exc()
-            continue
-    
+        
+        # Cleanup memory after each model
+        print0(f"Cleaning up memory after {model_name}...")
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        print0(f"Memory stats: {torch.cuda.memory_allocated() / 1024**2:.2f} MB allocated, {torch.cuda.memory_reserved() / 1024**2:.2f} MB reserved")
+            
     # Print summary
     print0("\n" + "=" * 80)
     print0("SUMMARY")
