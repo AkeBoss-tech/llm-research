@@ -107,7 +107,7 @@ cd "$REPO_DIR"
 # We use a random port based on job ID to avoid collisions
 PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 torchrun --nproc_per_node=2 --master_port=$PORT "$REPO_DIR/eval_gsm8k_all_models.py" \
-    --models default d32 d34 \
+    --models d32 d34 \
     --max-problems 1000 \
     --num-samples 1 \
     --temperature 0.0 \
