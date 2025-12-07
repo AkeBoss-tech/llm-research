@@ -86,6 +86,10 @@ parser.add_argument('--device-batch-size', type=int, default=None,
                     help='Device batch size (default: 1 for MPS, 4 for CUDA)')
 parser.add_argument('--num-epochs', type=int, default=3,
                     help='Number of epochs (default: 3)')
+parser.add_argument('--num-steps', type=int, default=None,
+                    help='Number of training steps to run (overrides num-epochs if set)')
+parser.add_argument('--start-step', type=int, default=0,
+                    help='Starting step number (for continuing from checkpoint, default: 0)')
 parser.add_argument('--target-examples-per-step', type=int, default=None,
                     help='Target examples per step (default: 8 for MPS, 32 for CUDA)')
 parser.add_argument('--unembedding-lr', type=float, default=0.004,
@@ -264,8 +268,26 @@ assert args.target_examples_per_step % examples_per_step == 0, "Target examples 
 grad_accum_steps = args.target_examples_per_step // examples_per_step
 print0(f"Gradient accumulation steps: {grad_accum_steps}")
 
-num_iterations = (len(train_ds) // args.target_examples_per_step) * args.num_epochs
-print0(f"Total iterations: {num_iterations} ({args.num_epochs} epochs)")
+# Calculate number of iterations
+if args.num_steps is not None:
+    num_iterations = args.num_steps
+    print0(f"Total iterations: {num_iterations} (explicitly set via --num-steps)")
+else:
+    num_iterations = (len(train_ds) // args.target_examples_per_step) * args.num_epochs
+    print0(f"Total iterations: {num_iterations} ({args.num_epochs} epochs)")
+
+# If loading from checkpoint, get the starting step from metadata
+if args.source and os.path.isdir(args.source) and args.step is not None:
+    # We're loading from a checkpoint, use that step as the starting point
+    start_step = args.step
+    print0(f"Continuing from checkpoint step: {start_step}")
+else:
+    start_step = args.start_step
+    print0(f"Starting from step: {start_step}")
+
+# Total steps will be start_step + num_iterations
+total_steps = start_step + num_iterations
+print0(f"Will train from step {start_step} to step {total_steps} ({num_iterations} iterations)")
 
 train_loader = sft_data_generator(train_ds, batch_size=args.device_batch_size)
 build_val_loader = lambda: sft_data_generator(val_ds, batch_size=args.device_batch_size)
@@ -298,22 +320,27 @@ print0(f"Checkpoints will be saved to: {output_dir}")
 # -----------------------------------------------------------------------------
 # Training loop
 
-def get_lr_multiplier(it):
-    lrm = 1.0 - it / num_iterations
-    return lrm
+# Define LR multiplier function that uses the start_step and total_steps from outer scope
+def get_lr_multiplier(global_step):
+    # Linear decay from start_step to total_steps
+    if total_steps > start_step:
+        lrm = 1.0 - (global_step - start_step) / (total_steps - start_step)
+    else:
+        lrm = 1.0
+    return max(0.0, lrm)  # Ensure non-negative
 
-step = 0
 train_iter = iter(train_loader)
 
 print0("=" * 80)
 print0("Starting training")
 print0("=" * 80)
 
-for step in range(num_iterations):
-    last_step = step == num_iterations - 1
+for iteration in range(num_iterations):
+    global_step = start_step + iteration
+    last_step = iteration == num_iterations - 1
 
     # Validation loss
-    if last_step or step % args.eval_every == 0:
+    if last_step or global_step % args.eval_every == 0:
         model.eval()
         val_iter = iter(build_val_loader())
         losses = []
@@ -326,9 +353,9 @@ for step in range(num_iterations):
         if ddp:
             dist.all_reduce(val_loss, op=dist.ReduceOp.AVG)
         val_loss = val_loss.item()
-        print0(f"Step {step:05d} | Validation loss: {val_loss:.6f}")
+        print0(f"Step {global_step:05d} | Validation loss: {val_loss:.6f}")
         wandb_run.log({
-            "step": step,
+            "step": global_step,
             "val_loss": val_loss,
         })
         model.train()
@@ -338,23 +365,24 @@ for step in range(num_iterations):
             torch.mps.empty_cache()
 
     # Save checkpoint
-    if last_step or (step > 0 and step % args.save_every == 0):
+    if last_step or (global_step > start_step and global_step % args.save_every == 0):
         if master_process:
             model_config_kwargs = model.config.__dict__
             save_checkpoint(
                 output_dir,
-                step,
+                global_step,
                 model.state_dict(),
                 None,  # Don't save optimizer state
                 {
-                    "step": step,
+                    "step": global_step,
                     "val_loss": val_loss if 'val_loss' in locals() else None,
                     "model_config": model_config_kwargs,
                     "source_model": args.model,
-                    "num_epochs": args.num_epochs,
+                    "num_epochs": args.num_epochs if args.num_steps is None else None,
+                    "num_steps": args.num_steps,
                 }
             )
-            print0(f"✅ Saved checkpoint at step {step}")
+            print0(f"✅ Saved checkpoint at step {global_step}")
 
     if last_step:
         break
@@ -378,7 +406,7 @@ for step in range(num_iterations):
         dist.all_reduce(num_tokens, op=dist.ReduceOp.SUM)
 
     # Learning rate scheduler
-    lrm = get_lr_multiplier(step)
+    lrm = get_lr_multiplier(global_step)
     for opt in optimizers:
         for group in opt.param_groups:
             group["lr"] = group["initial_lr"] * lrm
@@ -395,9 +423,9 @@ for step in range(num_iterations):
     # Logging
     train_loss_item = train_loss.item()
     num_tokens_item = num_tokens.item()
-    print0(f"Step {step:05d}/{num_iterations:05d} | Train loss: {train_loss_item:.6f} | LR: {lrm:.6f} | Tokens: {num_tokens_item:,}")
+    print0(f"Step {global_step:05d}/{total_steps:05d} (iter {iteration+1}/{num_iterations}) | Train loss: {train_loss_item:.6f} | LR: {lrm:.6f} | Tokens: {num_tokens_item:,}")
     wandb_run.log({
-        "step": step,
+        "step": global_step,
         "lrm": lrm,
         "train_loss": train_loss_item,
         "num_tokens": num_tokens_item,
@@ -405,21 +433,23 @@ for step in range(num_iterations):
 
 # Final save
 if master_process:
+    final_step = start_step + num_iterations
     model_config_kwargs = model.config.__dict__
     save_checkpoint(
         output_dir,
-        step,
+        final_step,
         model.state_dict(),
         None,
         {
-            "step": step,
+            "step": final_step,
             "val_loss": val_loss if 'val_loss' in locals() else None,
             "model_config": model_config_kwargs,
             "source_model": args.model,
-            "num_epochs": args.num_epochs,
+            "num_epochs": args.num_epochs if args.num_steps is None else None,
+            "num_steps": args.num_steps,
         }
     )
-    print0(f"✅ Final checkpoint saved at step {step}")
+    print0(f"✅ Final checkpoint saved at step {final_step}")
 
 wandb_run.finish()
 compute_cleanup()
