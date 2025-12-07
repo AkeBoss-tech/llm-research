@@ -120,7 +120,7 @@ cd "$REPO_DIR"
 # Use torchrun to utilize both GPUs (DDP)
 # We use a random port based on job ID to avoid collisions
 PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
-torchrun --nproc_per_node=2 --master_port=$PORT "$REPO_DIR/finetune_gsm8k.py" \
+torchrun --nproc_per_node=2 --master_port=$PORT "$REPO_DIR/finetune_gsm8k.py" -- \
     --model default \
     --run "$WANDB_RUN" \
     --device-type cuda \
