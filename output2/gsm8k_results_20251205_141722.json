@@ -1,0 +1,18 @@
+{
+  "timestamp": "20251205_141722",
+  "eval_params": {
+    "models": [
+      "default",
+      "d32",
+      "d34"
+    ],
+    "max_problems": 1000,
+    "num_samples": 1,
+    "temperature": 0.0,
+    "top_k": 50,
+    "max_new_tokens": 512,
+    "device_type": "cuda"
+  },
+  "summary": [],
+  "detailed_results": {}
+}

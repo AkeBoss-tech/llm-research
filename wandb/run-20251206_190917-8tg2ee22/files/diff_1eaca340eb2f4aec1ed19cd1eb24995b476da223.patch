@@ -1,0 +1,84 @@
+diff --git a/eval_gsm8k_all_models.py b/eval_gsm8k_all_models.py
+index 260cb0a..cc820c3 100644
+--- a/eval_gsm8k_all_models.py
++++ b/eval_gsm8k_all_models.py
+@@ -43,7 +43,7 @@ MODEL_CONFIGS = {
+     },
+ }
+ 
+-def evaluate_model_detailed(model_name, config, device, autocast_ctx, max_problems=None, num_samples=1, temperature=0.0, top_k=50, max_new_tokens=512):
++def evaluate_model_detailed(model_name, config, device, autocast_ctx, max_problems=None, num_samples=1, temperature=0.0, top_k=50, max_new_tokens=512, output_file=None):
+     """Load a model and evaluate it on GSM8K with detailed results."""
+     print0("=" * 80)
+     print0(f"Evaluating model: {model_name}")
+@@ -189,6 +189,32 @@ def evaluate_model_detailed(model_name, config, device, autocast_ctx, max_proble
+             # Logging
+             if (i + 1) % 10 == 0 or i == num_problems - 1:
+                 print0(f"Progress: {i+1}/{num_problems} ({100*(i+1)/num_problems:.1f}%) | Correct: {num_passed}/{total} ({100*num_passed/total:.2f}%)")
++                
++                # Save intermediate results if output_file is provided
++                if output_file and ddp_rank == 0:
++                    intermediate_accuracy = num_passed / total if total > 0 else 0.0
++                    intermediate_data = {
++                        'model_name': model_name,
++                        'hf_repo_id': config['hf_repo_id'],
++                        'step': config['step'],
++                        'accuracy': intermediate_accuracy,
++                        'accuracy_percent': 100 * intermediate_accuracy,
++                        'num_correct': num_passed,
++                        'num_total': total,
++                        'detailed_results': detailed_results,
++                        'eval_params': {
++                            'num_samples': num_samples,
++                            'temperature': temperature,
++                            'top_k': top_k,
++                            'max_new_tokens': max_new_tokens,
++                            'max_problems': max_problems,
++                        }
++                    }
++                    try:
++                        with open(output_file, 'w', encoding='utf-8') as f:
++                            json.dump(intermediate_data, f, indent=2, ensure_ascii=False)
++                    except Exception as e:
++                        print0(f"Warning: Failed to save intermediate results: {e}")
+     
+     # Aggregate results across ranks if using DDP
+     if ddp:
+@@ -283,6 +309,16 @@ def main():
+     print0("=" * 80)
+     print0()
+     
++    # Setup output directory early
++    if not args.no_save:
++        if args.output_dir:
++            output_dir = args.output_dir
++        else:
++            output_dir = os.path.join(get_base_dir(), "gsm8k_eval")
++        os.makedirs(output_dir, exist_ok=True)
++    else:
++        output_dir = None
++
+     # Evaluate each model
+     results = []
+     for model_name in args.models:
+@@ -290,6 +326,12 @@ def main():
+             print0(f"Warning: Unknown model '{model_name}', skipping...")
+             continue
+         
++        # Prepare output file for this model
++        model_output_file = None
++        if output_dir:
++            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
++            model_output_file = os.path.join(output_dir, f"gsm8k_{model_name}_{timestamp}.json")
++
+         try:
+             result = evaluate_model_detailed(
+                 model_name,
+@@ -301,6 +343,7 @@ def main():
+                 temperature=args.temperature,
+                 top_k=args.top_k,
+                 max_new_tokens=args.max_new_tokens,
++                output_file=model_output_file,
+             )
+             results.append(result)
+         except Exception as e:

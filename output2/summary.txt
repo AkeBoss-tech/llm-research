@@ -1,0 +1,32 @@
+================================================================================
+GSM8K Evaluation Summary
+================================================================================
+Generated: 2025-12-05 15:44:43
+Job ID: 48649930
+Node: gpu005
+
+Evaluation Parameters:
+--------------------------------------------------------------------------------
+  models: ['default', 'd32', 'd34']
+  max_problems: 1000
+  num_samples: 1
+  temperature: 0.0
+  top_k: 50
+  max_new_tokens: 512
+  device_type: cuda
+
+Results Summary:
+--------------------------------------------------------------------------------
+Model           Repository                          Step       Accuracy     Correct/Total  
+--------------------------------------------------------------------------------
+default         sdobson/nanochat                    650          4.00% 40/1000
+
+Best Model: default with 4.00% accuracy
+  Repository: sdobson/nanochat
+  Step: 650
+
+================================================================================
+Results JSON: /scratch/ad2046/gsm8k_eval_results/job_48649930/gsm8k_results_20251205_154439.json
+HTML Report: /scratch/ad2046/gsm8k_eval_results/job_48649930/report.html
+Summary: /scratch/ad2046/gsm8k_eval_results/job_48649930/summary.txt
+================================================================================

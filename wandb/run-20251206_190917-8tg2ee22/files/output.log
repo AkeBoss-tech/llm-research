@@ -1,0 +1,58 @@
+================================================================================
+Loading model: default
+================================================================================
+2025-12-06 19:09:18,871 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Downloading model files from sdobson/nanochat (step 650)...
+2025-12-06 19:09:18,872 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached model_000650.pt
+2025-12-06 19:09:18,872 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached meta_000650.json
+2025-12-06 19:09:18,872 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached token_bytes.pt in tokenizer directory
+2025-12-06 19:09:18,872 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached tokenizer.pkl in tokenizer directory
+2025-12-06 19:09:19,284 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Building model with config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 20, 'n_head': 10, 'n_kv_head': 10, 'n_embd': 1280}
+Model loaded successfully!
+Model config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 20, 'n_head': 10, 'n_kv_head': 10, 'n_embd': 1280}
+================================================================================
+Loading GSM8K dataset
+================================================================================
+Training examples: 7473
+Validation examples: 1319
+Target examples per step: 32
+Device batch size: 4
+Examples per step: 4
+Gradient accumulation steps: 8
+Total iterations: 699 (3 epochs)
+Scaling the LR for the AdamW parameters ∝1/√(1280/768) = 0.774597
+Checkpoints will be saved to: /Users/akashdubey/.cache/nanochat/gsm8k_finetune/default
+================================================================================
+Starting training
+================================================================================
+Step 00000 | Validation loss: 0.790325
+W1206 19:09:57.281000 26802 .venv/lib/python3.10/site-packages/torch/_inductor/utils.py:1558] [0/0] Not enough SMs to use max_autotune_gemm mode
+Step 00000/00699 | Train loss: 0.608590 | LR: 1.000000 | Tokens: 3,260
+Step 00001/00699 | Train loss: 0.429512 | LR: 0.998569 | Tokens: 2,981
+Step 00002/00699 | Train loss: 0.621170 | LR: 0.997139 | Tokens: 3,105
+Step 00003/00699 | Train loss: 0.695096 | LR: 0.995708 | Tokens: 2,745
+Step 00004/00699 | Train loss: 0.811129 | LR: 0.994278 | Tokens: 2,741
+Step 00005/00699 | Train loss: 0.628887 | LR: 0.992847 | Tokens: 3,300
+Step 00006/00699 | Train loss: 0.836156 | LR: 0.991416 | Tokens: 3,415
+Step 00007/00699 | Train loss: 0.580879 | LR: 0.989986 | Tokens: 3,267
+Step 00008/00699 | Train loss: 0.628985 | LR: 0.988555 | Tokens: 3,174
+Step 00009/00699 | Train loss: 0.813644 | LR: 0.987124 | Tokens: 2,800
+Traceback (most recent call last):
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/finetune_gsm8k.py", line 331, in <module>
+    loss = model(train_inputs, train_targets)
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/nanochat/gpt.py", line 278, in forward
+    logits = logits.float() # use tf32/fp32 for logits
+RuntimeError: MPS backend out of memory (MPS allocated: 18.03 GiB, other allocations: 11.93 GiB, max allowed: 30.19 GiB). Tried to allocate 325.00 MiB on private pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure).
+Traceback (most recent call last):
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/finetune_gsm8k.py", line 331, in <module>
+    loss = model(train_inputs, train_targets)
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/.venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/Users/akashdubey/Documents/CodingProjects/llm-research/nanochat/gpt.py", line 278, in forward
+    logits = logits.float() # use tf32/fp32 for logits
+RuntimeError: MPS backend out of memory (MPS allocated: 18.03 GiB, other allocations: 11.93 GiB, max allowed: 30.19 GiB). Tried to allocate 325.00 MiB on private pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure).

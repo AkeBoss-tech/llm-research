@@ -1,0 +1,97 @@
+_wandb:
+    value:
+        cli_version: 0.21.3
+        code_path: code/finetune_gsm8k.py
+        e:
+            3k42mrjmflo18fdsvibedplkadj3pklb:
+                apple:
+                    ecpuCores: 4
+                    gpuCores: 20
+                    memoryGb: 24
+                    name: Apple M4 Pro
+                    pcpuCores: 10
+                    ramTotalBytes: "25769803776"
+                    swapTotalBytes: "8589934592"
+                args:
+                    - --model
+                    - default
+                    - --run
+                    - my-gsm8k-experiment
+                codePath: finetune_gsm8k.py
+                codePathLocal: finetune_gsm8k.py
+                cpu_count: 14
+                cpu_count_logical: 14
+                disk:
+                    /:
+                        total: "994662584320"
+                        used: "659998789632"
+                email: akashdub06@gmail.com
+                executable: /Users/akashdubey/Documents/CodingProjects/llm-research/.venv/bin/python
+                git:
+                    commit: 1eaca340eb2f4aec1ed19cd1eb24995b476da223
+                    remote: https://github.com/AkeBoss-tech/llm-research
+                host: Mac
+                memory:
+                    total: "25769803776"
+                os: macOS-26.1-arm64-arm-64bit
+                program: /Users/akashdubey/Documents/CodingProjects/llm-research/finetune_gsm8k.py
+                python: CPython 3.10.18
+                root: /Users/akashdubey/Documents/CodingProjects/llm-research
+                startedAt: "2025-12-07T00:09:17.232945Z"
+                writerId: 3k42mrjmflo18fdsvibedplkadj3pklb
+        m: []
+        python_version: 3.10.18
+        t:
+            "1":
+                - 1
+                - 49
+                - 51
+            "2":
+                - 1
+                - 49
+                - 51
+            "3":
+                - 13
+                - 16
+            "4": 3.10.18
+            "5": 0.21.3
+            "12": 0.21.3
+            "13": darwin-arm64
+device_batch_size:
+    value: 4
+device_type:
+    value: ""
+dtype:
+    value: bfloat16
+embedding_lr:
+    value: 0.2
+eval_every:
+    value: 100
+eval_steps:
+    value: 100
+init_lr_frac:
+    value: 0.02
+matrix_lr:
+    value: 0.02
+model:
+    value: default
+model_tag:
+    value: null
+num_epochs:
+    value: 3
+output_dir:
+    value: null
+run:
+    value: my-gsm8k-experiment
+save_every:
+    value: 200
+source:
+    value: null
+step:
+    value: null
+target_examples_per_step:
+    value: 32
+unembedding_lr:
+    value: 0.004
+weight_decay:
+    value: 0

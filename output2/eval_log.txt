@@ -1,0 +1,243 @@
+2025-12-05 14:31:35,127 - datasets - [32m[1mINFO[0m - PyTorch version 2.5.1 available.
+2025-12-05 14:31:37,845 - nanochat.common - [32m[1mINFO[0m - Distributed world size: 1
+2025-12-05 14:31:38,054 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Downloading model files from sdobson/nanochat (step 650)...
+2025-12-05 14:31:38,055 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached model_000650.pt
+2025-12-05 14:31:38,057 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached meta_000650.json
+2025-12-05 14:31:38,070 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached token_bytes.pt in tokenizer directory
+2025-12-05 14:31:38,072 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached tokenizer.pkl in tokenizer directory
+/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py:44: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model_data = torch.load(model_path, map_location=device)
+2025-12-05 14:31:42,599 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Building model with config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 20, 'n_head': 10, 'n_kv_head': 10, 'n_embd': 1280}
+2025-12-05 14:31:44,911 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k "HTTP/1.1 200 OK"
+2025-12-05 14:31:45,105 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k "HTTP/1.1 200 OK"
+2025-12-05 14:31:45,525 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/e53f048856ff4f594e959d75785d2c2d37b678ee "HTTP/1.1 200 OK"
+2025-12-05 14:31:45,551 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/e53f048856ff4f594e959d75785d2c2d37b678ee/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2025-12-05 14:31:45,693 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/e53f048856ff4f594e959d75785d2c2d37b678ee?recursive=false&expand=false "HTTP/1.1 200 OK"
+2025-12-05 15:44:27,084 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using standard directory structure: chatsft_checkpoints/d32
+2025-12-05 15:44:27,107 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Downloading model files from karpathy/nanochat-d32 (step 650)...
+2025-12-05 15:44:27,123 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached model_000650.pt
+2025-12-05 15:44:27,125 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached meta_000650.json
+2025-12-05 15:44:27,125 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached token_bytes.pt in tokenizer directory
+2025-12-05 15:44:27,125 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached tokenizer.pkl in tokenizer directory
+/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py:44: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model_data = torch.load(model_path, map_location=device)
+2025-12-05 15:44:31,817 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Building model with config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 32, 'n_head': 16, 'n_kv_head': 16, 'n_embd': 2048}
+Traceback (most recent call last):
+  File "/cache/home/ad2046/llm-research/eval_gsm8k_all_models.py", line 247, in main
+    result = evaluate_model_detailed(
+  File "/cache/home/ad2046/llm-research/eval_gsm8k_all_models.py", line 55, in evaluate_model_detailed
+    model, tokenizer, meta = load_model(
+  File "/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py", line 146, in load_model
+    return load_model_from_huggingface(source, *args, **kwargs)
+  File "/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py", line 320, in load_model_from_huggingface
+    return build_model(checkpoint_dir, step, device, phase)
+  File "/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py", line 81, in build_model
+    model.to_empty(device=device)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1192, in to_empty
+    return self._apply(
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 900, in _apply
+    module._apply(fn)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 900, in _apply
+    module._apply(fn)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 900, in _apply
+    module._apply(fn)
+  [Previous line repeated 2 more times]
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 927, in _apply
+    param_applied = fn(param)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1193, in <lambda>
+    lambda t: torch.empty_like(t, device=device), recurse=recurse
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/_prims_common/wrappers.py", line 273, in _fn
+    result = fn(*args, **kwargs)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/_refs/__init__.py", line 4919, in empty_like
+    return torch.empty_permuted(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 64.00 MiB. GPU 0 has a total capacity of 11.92 GiB of which 40.19 MiB is free. Including non-PyTorch memory, this process has 11.88 GiB memory in use. Of the allocated memory 10.76 GiB is allocated by PyTorch, and 1.00 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+2025-12-05 15:44:32,350 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using standard directory structure: chatsft_checkpoints/d34
+2025-12-05 15:44:32,352 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Downloading model files from karpathy/nanochat-d34 (step 169150)...
+2025-12-05 15:44:32,354 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached model_169150.pt
+2025-12-05 15:44:32,356 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached meta_169150.json
+2025-12-05 15:44:32,356 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached token_bytes.pt in tokenizer directory
+2025-12-05 15:44:32,356 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Using cached tokenizer.pkl in tokenizer directory
+2025-12-05 15:44:39,186 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Building model with config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 34, 'n_head': 17, 'n_kv_head': 17, 'n_embd': 2176}
+Traceback (most recent call last):
+  File "/cache/home/ad2046/llm-research/eval_gsm8k_all_models.py", line 247, in main
+    result = evaluate_model_detailed(
+  File "/cache/home/ad2046/llm-research/eval_gsm8k_all_models.py", line 55, in evaluate_model_detailed
+    model, tokenizer, meta = load_model(
+  File "/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py", line 146, in load_model
+    return load_model_from_huggingface(source, *args, **kwargs)
+  File "/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py", line 320, in load_model_from_huggingface
+    return build_model(checkpoint_dir, step, device, phase)
+  File "/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py", line 81, in build_model
+    model.to_empty(device=device)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1192, in to_empty
+    return self._apply(
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 900, in _apply
+    module._apply(fn)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 900, in _apply
+    module._apply(fn)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 900, in _apply
+    module._apply(fn)
+  [Previous line repeated 2 more times]
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 927, in _apply
+    param_applied = fn(param)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1193, in <lambda>
+    lambda t: torch.empty_like(t, device=device), recurse=recurse
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/_prims_common/wrappers.py", line 273, in _fn
+    result = fn(*args, **kwargs)
+  File "/home/ad2046/miniconda3/envs/nanochat_proper/lib/python3.10/site-packages/torch/_refs/__init__.py", line 4919, in empty_like
+    return torch.empty_permuted(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 74.00 MiB. GPU 0 has a total capacity of 11.92 GiB of which 22.19 MiB is free. Including non-PyTorch memory, this process has 11.89 GiB memory in use. Of the allocated memory 11.21 GiB is allocated by PyTorch, and 578.88 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Autodetected device type: cuda
+================================================================================
+GSM8K Evaluation on All Models
+================================================================================
+Device: cuda
+Models to evaluate: default, d32, d34
+Max problems per model: 1000
+================================================================================
+
+================================================================================
+Evaluating model: default
+Repository: sdobson/nanochat
+Step: 650
+================================================================================
+Loading model from HuggingFace...
+Model checkpoint directory: /home/ad2046/.cache/nanochat/hf_checkpoints/sdobson_nanochat/step_000650
+Model config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 20, 'n_head': 10, 'n_kv_head': 10, 'n_embd': 1280}
+
+Running GSM8K evaluation...
+Parameters: num_samples=1, temperature=0.0, top_k=50, max_new_tokens=512
+Evaluating 1000 problems
+Progress: 10/1000 (1.0%) | Correct: 0/10 (0.00%)
+Progress: 20/1000 (2.0%) | Correct: 2/20 (10.00%)
+Progress: 30/1000 (3.0%) | Correct: 2/30 (6.67%)
+Progress: 40/1000 (4.0%) | Correct: 2/40 (5.00%)
+Progress: 50/1000 (5.0%) | Correct: 2/50 (4.00%)
+Progress: 60/1000 (6.0%) | Correct: 2/60 (3.33%)
+Progress: 70/1000 (7.0%) | Correct: 3/70 (4.29%)
+Progress: 80/1000 (8.0%) | Correct: 3/80 (3.75%)
+Progress: 90/1000 (9.0%) | Correct: 4/90 (4.44%)
+Progress: 100/1000 (10.0%) | Correct: 5/100 (5.00%)
+Progress: 110/1000 (11.0%) | Correct: 5/110 (4.55%)
+Progress: 120/1000 (12.0%) | Correct: 5/120 (4.17%)
+Progress: 130/1000 (13.0%) | Correct: 5/130 (3.85%)
+Progress: 140/1000 (14.0%) | Correct: 5/140 (3.57%)
+Progress: 150/1000 (15.0%) | Correct: 5/150 (3.33%)
+Progress: 160/1000 (16.0%) | Correct: 5/160 (3.12%)
+Progress: 170/1000 (17.0%) | Correct: 5/170 (2.94%)
+Progress: 180/1000 (18.0%) | Correct: 6/180 (3.33%)
+Progress: 190/1000 (19.0%) | Correct: 6/190 (3.16%)
+Progress: 200/1000 (20.0%) | Correct: 7/200 (3.50%)
+Progress: 210/1000 (21.0%) | Correct: 7/210 (3.33%)
+Progress: 220/1000 (22.0%) | Correct: 8/220 (3.64%)
+Progress: 230/1000 (23.0%) | Correct: 8/230 (3.48%)
+Progress: 240/1000 (24.0%) | Correct: 9/240 (3.75%)
+Progress: 250/1000 (25.0%) | Correct: 10/250 (4.00%)
+Progress: 260/1000 (26.0%) | Correct: 10/260 (3.85%)
+Progress: 270/1000 (27.0%) | Correct: 11/270 (4.07%)
+Progress: 280/1000 (28.0%) | Correct: 12/280 (4.29%)
+Progress: 290/1000 (29.0%) | Correct: 13/290 (4.48%)
+Progress: 300/1000 (30.0%) | Correct: 13/300 (4.33%)
+Progress: 310/1000 (31.0%) | Correct: 13/310 (4.19%)
+Progress: 320/1000 (32.0%) | Correct: 13/320 (4.06%)
+Progress: 330/1000 (33.0%) | Correct: 14/330 (4.24%)
+Progress: 340/1000 (34.0%) | Correct: 14/340 (4.12%)
+Progress: 350/1000 (35.0%) | Correct: 14/350 (4.00%)
+Progress: 360/1000 (36.0%) | Correct: 14/360 (3.89%)
+Progress: 370/1000 (37.0%) | Correct: 14/370 (3.78%)
+Progress: 380/1000 (38.0%) | Correct: 14/380 (3.68%)
+Progress: 390/1000 (39.0%) | Correct: 14/390 (3.59%)
+Progress: 400/1000 (40.0%) | Correct: 15/400 (3.75%)
+Progress: 410/1000 (41.0%) | Correct: 15/410 (3.66%)
+Progress: 420/1000 (42.0%) | Correct: 15/420 (3.57%)
+Progress: 430/1000 (43.0%) | Correct: 15/430 (3.49%)
+Progress: 440/1000 (44.0%) | Correct: 16/440 (3.64%)
+Progress: 450/1000 (45.0%) | Correct: 17/450 (3.78%)
+Progress: 460/1000 (46.0%) | Correct: 18/460 (3.91%)
+Progress: 470/1000 (47.0%) | Correct: 20/470 (4.26%)
+Progress: 480/1000 (48.0%) | Correct: 20/480 (4.17%)
+Progress: 490/1000 (49.0%) | Correct: 20/490 (4.08%)
+Progress: 500/1000 (50.0%) | Correct: 20/500 (4.00%)
+Progress: 510/1000 (51.0%) | Correct: 21/510 (4.12%)
+Progress: 520/1000 (52.0%) | Correct: 21/520 (4.04%)
+Progress: 530/1000 (53.0%) | Correct: 22/530 (4.15%)
+Progress: 540/1000 (54.0%) | Correct: 22/540 (4.07%)
+Progress: 550/1000 (55.0%) | Correct: 23/550 (4.18%)
+Progress: 560/1000 (56.0%) | Correct: 23/560 (4.11%)
+Progress: 570/1000 (57.0%) | Correct: 24/570 (4.21%)
+Progress: 580/1000 (58.0%) | Correct: 24/580 (4.14%)
+Progress: 590/1000 (59.0%) | Correct: 25/590 (4.24%)
+Progress: 600/1000 (60.0%) | Correct: 25/600 (4.17%)
+Progress: 610/1000 (61.0%) | Correct: 25/610 (4.10%)
+Progress: 620/1000 (62.0%) | Correct: 25/620 (4.03%)
+Progress: 630/1000 (63.0%) | Correct: 26/630 (4.13%)
+Progress: 640/1000 (64.0%) | Correct: 26/640 (4.06%)
+Progress: 650/1000 (65.0%) | Correct: 26/650 (4.00%)
+Progress: 660/1000 (66.0%) | Correct: 26/660 (3.94%)
+Progress: 670/1000 (67.0%) | Correct: 27/670 (4.03%)
+Progress: 680/1000 (68.0%) | Correct: 27/680 (3.97%)
+Progress: 690/1000 (69.0%) | Correct: 27/690 (3.91%)
+Progress: 700/1000 (70.0%) | Correct: 27/700 (3.86%)
+Progress: 710/1000 (71.0%) | Correct: 27/710 (3.80%)
+Progress: 720/1000 (72.0%) | Correct: 27/720 (3.75%)
+Progress: 730/1000 (73.0%) | Correct: 27/730 (3.70%)
+Progress: 740/1000 (74.0%) | Correct: 27/740 (3.65%)
+Progress: 750/1000 (75.0%) | Correct: 28/750 (3.73%)
+Progress: 760/1000 (76.0%) | Correct: 29/760 (3.82%)
+Progress: 770/1000 (77.0%) | Correct: 29/770 (3.77%)
+Progress: 780/1000 (78.0%) | Correct: 29/780 (3.72%)
+Progress: 790/1000 (79.0%) | Correct: 30/790 (3.80%)
+Progress: 800/1000 (80.0%) | Correct: 31/800 (3.88%)
+Progress: 810/1000 (81.0%) | Correct: 32/810 (3.95%)
+Progress: 820/1000 (82.0%) | Correct: 32/820 (3.90%)
+Progress: 830/1000 (83.0%) | Correct: 32/830 (3.86%)
+Progress: 840/1000 (84.0%) | Correct: 32/840 (3.81%)
+Progress: 850/1000 (85.0%) | Correct: 32/850 (3.76%)
+Progress: 860/1000 (86.0%) | Correct: 32/860 (3.72%)
+Progress: 870/1000 (87.0%) | Correct: 33/870 (3.79%)
+Progress: 880/1000 (88.0%) | Correct: 33/880 (3.75%)
+Progress: 890/1000 (89.0%) | Correct: 34/890 (3.82%)
+Progress: 900/1000 (90.0%) | Correct: 34/900 (3.78%)
+Progress: 910/1000 (91.0%) | Correct: 35/910 (3.85%)
+Progress: 920/1000 (92.0%) | Correct: 35/920 (3.80%)
+Progress: 930/1000 (93.0%) | Correct: 36/930 (3.87%)
+Progress: 940/1000 (94.0%) | Correct: 36/940 (3.83%)
+Progress: 950/1000 (95.0%) | Correct: 37/950 (3.89%)
+Progress: 960/1000 (96.0%) | Correct: 38/960 (3.96%)
+Progress: 970/1000 (97.0%) | Correct: 38/970 (3.92%)
+Progress: 980/1000 (98.0%) | Correct: 38/980 (3.88%)
+Progress: 990/1000 (99.0%) | Correct: 39/990 (3.94%)
+Progress: 1000/1000 (100.0%) | Correct: 40/1000 (4.00%)
+
+================================================================================
+Model: default
+GSM8K Accuracy: 4.00% (40/1000)
+================================================================================
+
+================================================================================
+Evaluating model: d32
+Repository: karpathy/nanochat-d32
+Step: 650
+================================================================================
+Loading model from HuggingFace...
+Error evaluating d32: CUDA out of memory. Tried to allocate 64.00 MiB. GPU 0 has a total capacity of 11.92 GiB of which 40.19 MiB is free. Including non-PyTorch memory, this process has 11.88 GiB memory in use. Of the allocated memory 10.76 GiB is allocated by PyTorch, and 1.00 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+================================================================================
+Evaluating model: d34
+Repository: karpathy/nanochat-d34
+Step: 169150
+================================================================================
+Loading model from HuggingFace...
+Error evaluating d34: CUDA out of memory. Tried to allocate 74.00 MiB. GPU 0 has a total capacity of 11.92 GiB of which 22.19 MiB is free. Including non-PyTorch memory, this process has 11.89 GiB memory in use. Of the allocated memory 11.21 GiB is allocated by PyTorch, and 578.88 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+
+================================================================================
+SUMMARY
+================================================================================
+Model           Repository                     Step       Accuracy       
+--------------------------------------------------------------------------------
+default         sdobson/nanochat               650          4.00%
+================================================================================
+
+Best model: default with 4.00% accuracy
+
+Results saved to: /scratch/ad2046/gsm8k_eval_results/job_48649930/gsm8k_results_20251205_154439.json
+To visualize, run: python visualize_gsm8k_results.py /scratch/ad2046/gsm8k_eval_results/job_48649930/gsm8k_results_20251205_154439.json
