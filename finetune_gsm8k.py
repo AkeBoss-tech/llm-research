@@ -128,6 +128,12 @@ if args.target_examples_per_step is None:
 
 # wandb logging init
 use_dummy_wandb = args.run == "dummy" or not master_process
+if not use_dummy_wandb:
+    # Configure wandb API key (hardcoded for non-interactive environments)
+    # Replace "YOUR_WANDB_API_KEY_HERE" with your actual wandb API key
+    WANDB_API_KEY = os.environ.get("WANDB_API_KEY", "YOUR_WANDB_API_KEY_HERE")
+    if WANDB_API_KEY and WANDB_API_KEY != "YOUR_WANDB_API_KEY_HERE":
+        wandb.login(key=WANDB_API_KEY)
 wandb_run = DummyWandb() if use_dummy_wandb else wandb.init(
     project="nanochat-gsm8k-finetune", 
     name=args.run, 
@@ -142,9 +148,20 @@ print0(f"Loading model: {args.model}")
 print0("=" * 80)
 
 if args.source:
-    # Load from custom source (local checkpoint or HuggingFace repo)
-    if args.source in ["base", "mid", "sft", "rl"]:
-        # Local checkpoint
+    # Load from custom source (local checkpoint directory, predefined type, or HuggingFace repo)
+    if os.path.isdir(args.source):
+        # Direct checkpoint directory path
+        from nanochat.checkpoint_manager import build_model
+        checkpoint_dir = args.source
+        step = args.step
+        if step is None:
+            from nanochat.checkpoint_manager import find_last_step
+            step = find_last_step(checkpoint_dir)
+            print0(f"No step specified, using latest step: {step}")
+        print0(f"Loading from checkpoint directory: {checkpoint_dir}, step: {step}")
+        model, tokenizer, meta = build_model(checkpoint_dir, step, device, phase="train")
+    elif args.source in ["base", "mid", "sft", "rl"]:
+        # Local checkpoint (predefined type)
         model, tokenizer, meta = load_model(
             args.source,
             device=device,
