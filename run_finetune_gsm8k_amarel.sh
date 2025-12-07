@@ -122,6 +122,7 @@ cd "$REPO_DIR"
 PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 torchrun --nproc_per_node=2 --master_port=$PORT "$REPO_DIR/finetune_gsm8k.py" -- \
     --model default \
+    --use-socratic \
     --run "$WANDB_RUN" \
     --device-type cuda \
     --dtype bfloat16 \

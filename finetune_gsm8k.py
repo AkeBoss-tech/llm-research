@@ -39,6 +39,7 @@ from nanochat.common import compute_init, compute_cleanup, get_base_dir, print0,
 from nanochat.checkpoint_manager import load_model, save_checkpoint
 from nanochat.engine import Engine
 from tasks.gsm8k import GSM8K
+from tasks.common import TaskMixture
 
 # Model configurations for HuggingFace models
 MODEL_CONFIGS = {
@@ -110,6 +111,10 @@ parser.add_argument('--save-every', type=int, default=200,
                     help='Save checkpoint every N steps (default: 200)')
 parser.add_argument('--output-dir', type=str, default=None,
                     help='Directory to save checkpoints (default: ~/.cache/nanochat/gsm8k_finetune/)')
+parser.add_argument('--use-socratic', action='store_true',
+                    help='Also include socratic subset in training (doubles training data)')
+parser.add_argument('--use-test-for-training', action='store_true',
+                    help='Also use test split for training (not recommended for evaluation)')
 args = parser.parse_args()
 
 # -----------------------------------------------------------------------------
@@ -221,11 +226,31 @@ print0("=" * 80)
 print0("Loading GSM8K dataset")
 print0("=" * 80)
 
-train_ds = GSM8K(subset="main", split="train")
+# Load training datasets
+train_datasets = [GSM8K(subset="main", split="train")]
+if args.use_socratic:
+    train_datasets.append(GSM8K(subset="socratic", split="train"))
+    print0("Including socratic subset in training (doubles training data)")
+
+if args.use_test_for_training:
+    train_datasets.append(GSM8K(subset="main", split="test"))
+    if args.use_socratic:
+        train_datasets.append(GSM8K(subset="socratic", split="test"))
+    print0("WARNING: Including test split in training (reduces evaluation set)")
+
+# Combine datasets using TaskMixture (shuffles deterministically)
+if len(train_datasets) > 1:
+    train_ds = TaskMixture(train_datasets)
+    print0(f"Combined {len(train_datasets)} datasets using TaskMixture")
+else:
+    train_ds = train_datasets[0]
+
 val_ds = GSM8K(subset="main", split="test")
 
 print0(f"Training examples: {len(train_ds)}")
 print0(f"Validation examples: {len(val_ds)}")
+if len(train_datasets) > 1:
+    print0(f"Breakdown: {', '.join([f'{len(ds)} examples' for ds in train_datasets])}")
 
 # -----------------------------------------------------------------------------
 # DataLoader

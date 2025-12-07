@@ -123,6 +123,7 @@ torchrun --nproc_per_node=2 --master_port=$PORT "$REPO_DIR/finetune_gsm8k.py" --
     --source "$CHECKPOINT_DIR" \
     --step $STEP \
     --num-steps $NUM_STEPS \
+    --use-socratic \
     --run "$WANDB_RUN" \
     --device-type cuda \
     --dtype bfloat16 \
@@ -207,6 +208,7 @@ try:
         f.write(f"  Device Batch Size: 4\n")
         f.write(f"  Target Examples per Step: 32\n")
         f.write(f"  Number of Steps: $NUM_STEPS\n")
+        f.write(f"  Using Socratic Subset: Yes (doubles training data)\n")
         f.write("\n")
         
         f.write("Final Checkpoint:\n")
