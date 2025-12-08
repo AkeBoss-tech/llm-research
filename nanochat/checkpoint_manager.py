@@ -87,7 +87,7 @@ def build_model(checkpoint_dir, step, device, phase):
     else:
         model.train()
     # Load the Tokenizer
-    tokenizer = get_tokenizer()
+    tokenizer = get_tokenizer(checkpoint_dir)
     # Sanity check: compatibility between model and tokenizer
     assert tokenizer.get_vocab_size() == model_config_kwargs["vocab_size"]
     return model, tokenizer, meta_data
@@ -130,6 +130,22 @@ def load_model_from_dir(checkpoints_dir, device, phase, model_tag=None, step=Non
         model_tag = find_largest_model(checkpoints_dir)
         log0(f"No model tag provided, guessing model tag: {model_tag}")
     checkpoint_dir = os.path.join(checkpoints_dir, model_tag)
+    
+    # Check if the specified model_tag directory exists and has checkpoints
+    if not os.path.exists(checkpoint_dir) or not os.path.isdir(checkpoint_dir):
+        log0(f"Model tag '{model_tag}' directory does not exist at {checkpoint_dir}, falling back to largest model")
+        model_tag = find_largest_model(checkpoints_dir)
+        checkpoint_dir = os.path.join(checkpoints_dir, model_tag)
+        log0(f"Using model tag: {model_tag}")
+    else:
+        # Check if the directory has any checkpoints
+        checkpoint_files = glob.glob(os.path.join(checkpoint_dir, "model_*.pt"))
+        if not checkpoint_files:
+            log0(f"Model tag '{model_tag}' has no checkpoints in {checkpoint_dir}, falling back to largest model")
+            model_tag = find_largest_model(checkpoints_dir)
+            checkpoint_dir = os.path.join(checkpoints_dir, model_tag)
+            log0(f"Using model tag: {model_tag}")
+    
     if step is None:
         # guess the step by defaulting to the last step
         step = find_last_step(checkpoint_dir)
@@ -251,9 +267,9 @@ def load_model_from_huggingface(hf_repo_id: str, step: int = None, device=None, 
         checkpoint_dir = os.path.join(cache_dir, f"step_{step:06d}")
     os.makedirs(checkpoint_dir, exist_ok=True)
     
-    # Tokenizer files go to the base tokenizer directory (shared across checkpoints)
-    tokenizer_dir = os.path.join(base_dir, "tokenizer")
-    os.makedirs(tokenizer_dir, exist_ok=True)
+    # Tokenizer files go to the checkpoint directory (so each model has its own tokenizer)
+    tokenizer_dir = checkpoint_dir
+    # os.makedirs(tokenizer_dir, exist_ok=True) # already created above
     
     # Files to download to checkpoint directory
     checkpoint_files = {
@@ -261,7 +277,7 @@ def load_model_from_huggingface(hf_repo_id: str, step: int = None, device=None, 
         f"meta_{step:06d}.json": f"meta_{step:06d}.json",
     }
     
-    # Files to download to tokenizer directory
+    # Files to download to tokenizer directory (now same as checkpoint directory)
     tokenizer_files = {
         "token_bytes.pt": "token_bytes.pt",
         "tokenizer.pkl": "tokenizer.pkl",
@@ -309,12 +325,13 @@ def load_model_from_huggingface(hf_repo_id: str, step: int = None, device=None, 
                     if os.path.exists(local_path):
                         os.remove(local_path)
                     shutil.move(downloaded_path, local_path)
-                log0(f"Downloaded {hf_filename} to tokenizer directory")
+                log0(f"Downloaded {hf_filename} to checkpoint directory")
             except Exception as e:
-                log0(f"Warning: Could not download {hf_filename}: {e}")
+                # log0(f"Warning: Could not download {hf_filename}: {e}")
+                pass
                 # Tokenizer files might not be critical if they already exist locally
         else:
-            log0(f"Using cached {local_filename} in tokenizer directory")
+            log0(f"Using cached {local_filename} in checkpoint directory")
     
     # Now use the existing build_model function to load
     return build_model(checkpoint_dir, step, device, phase)

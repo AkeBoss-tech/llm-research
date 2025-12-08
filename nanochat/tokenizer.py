@@ -379,10 +379,35 @@ class RustBPETokenizer:
 # -----------------------------------------------------------------------------
 # nanochat-specific convenience functions
 
-def get_tokenizer():
+def get_tokenizer(tokenizer_dir=None):
     from nanochat.common import get_base_dir
-    base_dir = get_base_dir()
-    tokenizer_dir = os.path.join(base_dir, "tokenizer")
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    if tokenizer_dir is None:
+        base_dir = get_base_dir()
+        tokenizer_dir = os.path.join(base_dir, "tokenizer")
+    else:
+        # Check if tokenizer exists in the specified directory
+        tokenizer_path = os.path.join(tokenizer_dir, "tokenizer.pkl")
+        if not os.path.exists(tokenizer_path):
+            # If not found in specific dir, try default location
+            base_dir = get_base_dir()
+            default_dir = os.path.join(base_dir, "tokenizer")
+            default_tokenizer_path = os.path.join(default_dir, "tokenizer.pkl")
+            if os.path.exists(default_tokenizer_path):
+                logger.warning(
+                    f"Tokenizer not found in {tokenizer_dir}, falling back to default location: {default_dir}. "
+                    f"This may cause model/tokenizer mismatches. Ensure tokenizer.pkl exists in the checkpoint directory."
+                )
+                tokenizer_dir = default_dir
+            else:
+                raise FileNotFoundError(
+                    f"Tokenizer not found in {tokenizer_dir} or default location {default_dir}. "
+                    f"Expected tokenizer.pkl in one of these directories."
+                )
+
     # return HuggingFaceTokenizer.from_directory(tokenizer_dir)
     return RustBPETokenizer.from_directory(tokenizer_dir)
 
