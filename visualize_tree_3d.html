@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree of Thought Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .header-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 2px solid #4CAF50;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-panel h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .nav-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: #4f46e5;
+        }
+
+        .generated-text {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 3px solid #4CAF50;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .generated-text-label {
+            color: #4CAF50;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .generated-text-content {
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            word-wrap: break-word;
+            line-height: 1.8;
+        }
+        
+        .token-span {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        
+        .token-span:hover {
+            background-color: rgba(76, 175, 80, 0.2);
+        }
+        
+        .token-span.current {
+            background-color: rgba(76, 175, 80, 0.3);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { background-color: rgba(76, 175, 80, 0.3); }
+            50% { background-color: rgba(76, 175, 80, 0.5); }
+        }
+        
+        .token-popup {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.98);
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            max-height: 600px;
+            overflow-y: auto;
+            z-index: 2000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: none;
+        }
+        
+        .token-popup.visible {
+            display: block;
+        }
+        
+        .token-popup h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .token-popup .token-info {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .token-popup .candidate-item {
+            background: #f8f9fa;
+            border-left: 3px solid #2196F3;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .token-popup .candidate-item.selected {
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+        }
+        
+        .token-popup .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .token-popup .candidate-token {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .token-popup .candidate-prob {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .token-popup .candidate-rollout {
+            color: #999;
+            font-size: 13px;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .token-popup .candidate-score {
+            color: #888;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .candidates-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .candidate-card {
+            background: rgba(33, 150, 243, 0.1);
+            border: 2px solid #2196F3;
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .candidate-card.selected {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+
+        .candidate-card h4 {
+            color: #2196F3;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .candidate-card.selected h4 {
+            color: #4CAF50;
+        }
+
+        .candidate-token {
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .candidate-rollout {
+            color: #999;
+            font-size: 12px;
+            font-style: italic;
+            margin-top: 8px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 8px;
+        }
+        
+        .text-segment.rollout {
+            color: #999;
+            font-size: 36px;
+            font-weight: normal;
+            opacity: 0.7;
+        }
+
+        .candidate-score {
+            color: #888;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .canvas-container {
+            margin-top: 150px;
+            min-height: calc(100vh - 150px);
+            position: relative;
+            background: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,.03) 10px, rgba(0,0,0,.03) 20px),
+                #f5f5f5;
+        }
+
+        .text-flow {
+            position: relative;
+            padding: 100px 50px;
+            min-width: 100%;
+        }
+
+        .text-segment {
+            position: absolute;
+            font-size: 48px;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .text-segment.main-path {
+            color: #000;
+            font-weight: bold;
+        }
+
+        .text-segment.alternative {
+            color: #000;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+
+        .text-segment.past {
+            color: #999;
+            font-size: 36px;
+            font-weight: normal;
+            opacity: 0.6;
+        }
+
+        .text-segment.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .controls-panel {
+            position: fixed;
+            top: 160px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 300px;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .controls-panel h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .animation-controls {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .animation-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .animation-buttons button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="token-popup" id="tokenPopup">
+        <h3 id="popupTitle">Token Details</h3>
+        <div id="popupContent"></div>
+    </div>
+    
+    <div class="header-panel" id="headerPanel">
+        <a href="index.html" class="nav-link">← Back to Home</a>
+        <h2>🌳 Tree of Thought - Current State</h2>
+        <div class="generated-text">
+            <div class="generated-text-label">Generated Text:</div>
+            <div class="generated-text-content" id="generatedText">-</div>
+        </div>
+        <div class="candidates-section" id="candidatesSection">
+            <!-- Top 3 candidates will be shown here -->
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <div class="text-flow" id="textFlow"></div>
+    </div>
+
+    <div class="controls-panel">
+        <h3>Controls</h3>
+        <div class="control-group">
+            <label>Font Size: <span id="fontSizeValue">48</span>px</label>
+            <input type="range" id="fontSize" min="12" max="120" step="4" value="48">
+        </div>
+        <div class="control-group">
+            <label>Spacing: <span id="spacingValue">2.5</span></label>
+            <input type="range" id="spacing" min="0.5" max="5.0" step="0.1" value="2.5">
+        </div>
+        <div class="control-group">
+            <label>Branch Angle: <span id="angleValue">30</span>°</label>
+            <input type="range" id="branchAngle" min="5" max="90" step="5" value="30">
+        </div>
+        <button onclick="resetView()">Reset View</button>
+        <button onclick="loadFile()">Load JSON File</button>
+
+        <div class="animation-controls">
+            <h3>Animation</h3>
+            <div class="animation-buttons">
+                <button id="playBtn" onclick="playAnimation()">▶ Play</button>
+                <button id="pauseBtn" onclick="pauseAnimation()" style="display: none;">⏸ Pause</button>
+                <button onclick="restartAnimation()">⏮ Restart</button>
+            </div>
+            <div class="control-group">
+                <label>Step: <span id="currentStep">0</span> / <span id="totalSteps">0</span></label>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Speed: <span id="speedValue">1.0</span>x</label>
+                <input type="range" id="animationSpeed" min="0.1" max="10.0" step="0.1" value="1.0">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let treeData = null;
+        let textSegments = [];
+        let tokenSpans = []; // Track token spans in generated text
+        let tokenPositions = []; // Track positions of tokens for camera movement
+        let animationState = {
+            isPlaying: false,
+            currentStep: 0,
+            totalSteps: 0,
+            speed: 1.0,
+            animationFrame: null
+        };
+
+        function loadDefaultFile() {
+            fetch('tree_data_problem_1.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('File not found');
+                    return response.json();
+                })
+                .then(data => {
+                    treeData = data;
+                    buildVisualization(true);
+                    updateHeaderPanel(0);
+                })
+                .catch(error => {
+                    console.error('Could not load default file:', error);
+                });
+        }
+
+        function loadFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        treeData = JSON.parse(event.target.result);
+                        pauseAnimation();
+                        buildVisualization(true);
+                        updateHeaderPanel(0);
+                    } catch (error) {
+                        alert('Error parsing JSON: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function buildVisualization(animate = false) {
+            if (!treeData || !treeData.steps) return;
+
+            const textFlow = document.getElementById('textFlow');
+            textFlow.innerHTML = '';
+            textSegments = [];
+
+            animationState.currentStep = 0;
+            animationState.totalSteps = treeData.steps.length;
+            document.getElementById('totalSteps').textContent = animationState.totalSteps;
+
+            // Build the text flow
+            let currentX = 0;
+            let currentY = 200;
+            const fontSize = parseFloat(document.getElementById('fontSize').value);
+            const spacing = parseFloat(document.getElementById('spacing').value);
+            const branchAngle = parseFloat(document.getElementById('branchAngle').value) * Math.PI / 180;
+
+            // Track the main path
+            let mainPathText = '';
+            const mainPathSegments = [];
+
+            treeData.steps.forEach((step, stepIdx) => {
+                const candidates = step.candidates || [];
+                const selectedIdx = step.selected_candidate;
+                const selectedCandidate = candidates[selectedIdx];
+
+                if (!selectedCandidate) return;
+
+                // Add selected token to main path
+                const tokenText = selectedCandidate.token_text || '';
+                mainPathText += tokenText;
+
+                // Create main path segment
+                const mainSegment = createTextSegment(
+                    currentX,
+                    currentY,
+                    tokenText,
+                    'main-path',
+                    stepIdx,
+                    selectedCandidate
+                );
+                mainPathSegments.push(mainSegment);
+                textSegments.push(mainSegment);
+
+                // Calculate width for spacing
+                const textWidth = getTextWidth(tokenText, fontSize);
+                currentX += textWidth * spacing;
+
+                // Add rollout text for main path (in gray)
+                if (selectedCandidate.rollout_text) {
+                    const rolloutSegment = createTextSegment(
+                        currentX,
+                        currentY,
+                        selectedCandidate.rollout_text,
+                        'rollout',
+                        stepIdx,
+                        selectedCandidate
+                    );
+                    textSegments.push(rolloutSegment);
+                    const rolloutWidth = getTextWidth(selectedCandidate.rollout_text, fontSize * 0.75, false);
+                    currentX += rolloutWidth * spacing * 0.8;
+                }
+
+                // Create alternative branches
+                candidates.forEach((candidate, candIdx) => {
+                    if (candIdx === selectedIdx) return; // Skip selected
+
+                    // Calculate branch position
+                    const angle = (candIdx - selectedIdx) * branchAngle;
+                    const branchDistance = fontSize * 2.0; // Increased distance for more spacing
+                    const branchX = currentX - textWidth * spacing;
+                    const branchY = currentY + Math.sin(angle) * branchDistance;
+
+                    const altText = candidate.token_text || '';
+                    const altSegment = createTextSegment(
+                        branchX,
+                        branchY,
+                        altText,
+                        'alternative',
+                        stepIdx,
+                        candidate,
+                        angle
+                    );
+                    textSegments.push(altSegment);
+                    
+                    // Add rollout text for alternatives (in gray)
+                    if (candidate.rollout_text) {
+                        const altRolloutX = branchX + getTextWidth(altText, fontSize) * spacing;
+                        const altRolloutSegment = createTextSegment(
+                            altRolloutX,
+                            branchY,
+                            candidate.rollout_text,
+                            'rollout',
+                            stepIdx,
+                            candidate,
+                            angle
+                        );
+                        textSegments.push(altRolloutSegment);
+                    }
+                });
+
+                // Update currentY for next step (more vertical spacing)
+                currentY += fontSize * 0.5;
+            });
+
+            // Initially hide all segments if animating
+            if (animate) {
+                textSegments.forEach(seg => {
+                    seg.classList.add('hidden');
+                });
+                showStep(0);
+            }
+
+            // Setup controls
+            setupControls();
+        }
+
+        function createTextSegment(x, y, text, className, step, candidateData, rotation = 0) {
+            const segment = document.createElement('div');
+            segment.className = `text-segment ${className}`;
+            segment.textContent = text;
+            segment.style.left = x + 'px';
+            segment.style.top = y + 'px';
+            
+            // Apply rotation if provided
+            if (rotation !== 0) {
+                segment.style.transform = `rotate(${rotation * 180 / Math.PI}deg)`;
+                segment.style.transformOrigin = 'left center';
+            }
+            
+            // Adjust font size for rollout text
+            if (className === 'rollout') {
+                const fontSize = parseFloat(document.getElementById('fontSize').value);
+                segment.style.fontSize = (fontSize * 0.75) + 'px';
+            }
+            
+            segment.dataset.step = step;
+            segment.dataset.candidate = JSON.stringify(candidateData);
+
+            // Add hover tooltip
+            segment.title = `Step ${step + 1}\nRollout: ${candidateData.rollout_text || 'N/A'}\nScore: ${candidateData.score || 'N/A'}`;
+
+            document.getElementById('textFlow').appendChild(segment);
+            return segment;
+        }
+
+        function getTextWidth(text, fontSize, isBold = true) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const fontWeight = isBold ? 'bold' : 'normal';
+            context.font = `${fontWeight} ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto`;
+            return context.measureText(text).width;
+        }
+
+        function showStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= animationState.totalSteps) return;
+
+            // Show/hide segments based on step
+            textSegments.forEach(segment => {
+                const segmentStep = parseInt(segment.dataset.step);
+                if (segmentStep <= stepIndex) {
+                    segment.classList.remove('hidden');
+                } else {
+                    segment.classList.add('hidden');
+                }
+            });
+
+            // Update header panel (this will update token highlighting)
+            updateHeaderPanel(stepIndex);
+
+            // Move camera to focus on current token
+            setTimeout(() => moveCameraToToken(stepIndex), 50); // Small delay to ensure DOM is updated
+
+            // Update progress
+            const progress = (stepIndex + 1) / animationState.totalSteps * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentStep').textContent = stepIndex + 1;
+        }
+        
+        function moveCameraToToken(stepIndex) {
+            // Find the main path segment for this step
+            const mainSegment = textSegments.find(seg => {
+                return parseInt(seg.dataset.step) === stepIndex && seg.classList.contains('main-path');
+            });
+            
+            if (mainSegment) {
+                const textFlow = document.getElementById('textFlow');
+                
+                // Get the position of the segment relative to the flow container
+                const segmentLeft = parseFloat(mainSegment.style.left);
+                const segmentTop = parseFloat(mainSegment.style.top);
+                
+                // Calculate center position
+                const fontSize = parseFloat(document.getElementById('fontSize').value);
+                const centerX = segmentLeft - window.innerWidth / 2 + fontSize;
+                const centerY = segmentTop - window.innerHeight / 2 + fontSize;
+                
+                // Smooth scroll to center the token
+                textFlow.scrollTo({
+                    left: Math.max(0, centerX),
+                    top: Math.max(0, centerY + 150), // Account for header
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function updateHeaderPanel(stepIndex) {
+            if (!treeData || !treeData.steps) return;
+
+            const generatedTextDiv = document.getElementById('generatedText');
+            generatedTextDiv.innerHTML = '';
+            tokenSpans = [];
+            tokenPositions = [];
+
+            // Build generated text with clickable token spans
+            for (let i = 0; i <= stepIndex && i < treeData.steps.length; i++) {
+                const step = treeData.steps[i];
+                if (step.selected_text) {
+                    const tokenSpan = document.createElement('span');
+                    tokenSpan.className = 'token-span';
+                    tokenSpan.textContent = step.selected_text;
+                    tokenSpan.dataset.step = i;
+                    
+                    // Add hover and click handlers
+                    tokenSpan.addEventListener('mouseenter', (e) => {
+                        if (!animationState.isPlaying) {
+                            showTokenPopup(i, e);
+                        }
+                    });
+                    tokenSpan.addEventListener('mouseleave', () => {
+                        if (!animationState.isPlaying) {
+                            hideTokenPopup();
+                        }
+                    });
+                    tokenSpan.addEventListener('click', () => {
+                        pauseAnimation();
+                        animationState.currentStep = i;
+                        showStep(i);
+                        moveCameraToToken(i);
+                    });
+                    
+                    // Highlight current token during animation
+                    if (i === stepIndex) {
+                        tokenSpan.classList.add('current');
+                    } else {
+                        tokenSpan.classList.remove('current');
+                    }
+                    
+                    generatedTextDiv.appendChild(tokenSpan);
+                    tokenSpans.push(tokenSpan);
+                }
+            }
+
+            // Show top 3 candidates for current step
+            const currentStep = treeData.steps[stepIndex];
+            if (!currentStep || !currentStep.candidates) return;
+
+            const candidates = currentStep.candidates.slice(0, 3);
+            const selectedIdx = currentStep.selected_candidate;
+
+            const candidatesSection = document.getElementById('candidatesSection');
+            candidatesSection.innerHTML = '';
+
+            candidates.forEach((candidate, idx) => {
+                const isSelected = idx === selectedIdx;
+
+                const card = document.createElement('div');
+                card.className = `candidate-card ${isSelected ? 'selected' : ''}`;
+
+                const rank = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+                card.innerHTML = `
+                    <h4>${rank} Candidate ${idx + 1}${isSelected ? ' (Selected)' : ''}</h4>
+                    <div class="candidate-token">${escapeHtml(candidate.token_text || '')}</div>
+                    <div class="candidate-rollout">Rollout: "${escapeHtml(candidate.rollout_text || '')}"</div>
+                    <div class="candidate-score">Score: ${candidate.score ? candidate.score.toFixed(4) : 'N/A'} | Prob: ${candidate.initial_prob ? (candidate.initial_prob * 100).toFixed(2) + '%' : 'N/A'}</div>
+                `;
+
+                candidatesSection.appendChild(card);
+            });
+        }
+        
+        function showTokenPopup(stepIndex, event) {
+            if (!treeData || !treeData.steps || stepIndex >= treeData.steps.length) return;
+            if (animationState.isPlaying) return; // Don't show popup during animation
+            
+            const step = treeData.steps[stepIndex];
+            const popup = document.getElementById('tokenPopup');
+            const popupTitle = document.getElementById('popupTitle');
+            const popupContent = document.getElementById('popupContent');
+            
+            popupTitle.textContent = `Step ${stepIndex + 1} - Token: "${step.selected_text || ''}"`;
+            
+            let html = '';
+            
+            if (step.candidates && step.candidates.length > 0) {
+                html += '<div class="token-info">';
+                html += `<p><strong>Selected Token:</strong> "${escapeHtml(step.selected_text || 'N/A')}"</p>`;
+                html += `<p><strong>Total Candidates:</strong> ${step.candidates.length}</p>`;
+                html += `<p><strong>Selected Index:</strong> ${step.selected_candidate}</p>`;
+                html += '</div>';
+                
+                html += '<h4 style="margin-top: 15px; margin-bottom: 10px; color: #333; font-size: 14px;">All Candidates (sorted by score):</h4>';
+                
+                // Sort candidates by score (best first)
+                const sortedCandidates = [...step.candidates].sort((a, b) => {
+                    const scoreA = a.score || -Infinity;
+                    const scoreB = b.score || -Infinity;
+                    return scoreB - scoreA; // Higher score is better
+                });
+                
+                sortedCandidates.forEach((candidate, sortedIdx) => {
+                    const originalIdx = step.candidates.indexOf(candidate);
+                    const isSelected = originalIdx === step.selected_candidate;
+                    const rank = sortedIdx === 0 ? '🥇' : sortedIdx === 1 ? '🥈' : sortedIdx === 2 ? '🥉' : `${sortedIdx + 1}.`;
+                    
+                    html += `
+                        <div class="candidate-item ${isSelected ? 'selected' : ''}">
+                            <div class="candidate-header">
+                                <span class="candidate-token">${rank} ${escapeHtml(candidate.token_text || '')}</span>
+                                <span class="candidate-prob">${candidate.initial_prob ? (candidate.initial_prob * 100).toFixed(2) + '%' : 'N/A'}</span>
+                            </div>
+                            <div class="candidate-score">Score: ${candidate.score ? candidate.score.toFixed(4) : 'N/A'} | Index: ${originalIdx}</div>
+                            <div class="candidate-rollout">Rollout: "${escapeHtml(candidate.rollout_text || '')}"</div>
+                            ${isSelected ? '<div style="color: #4CAF50; font-size: 11px; margin-top: 4px; font-weight: bold;">✓ SELECTED</div>' : ''}
+                        </div>
+                    `;
+                });
+            }
+            
+            popupContent.innerHTML = html;
+            popup.classList.add('visible');
+            
+            // Position popup near cursor, but keep it on screen
+            const popupWidth = 500;
+            const popupHeight = Math.min(600, popupContent.scrollHeight + 100);
+            const x = Math.min(event.clientX + 20, window.innerWidth - popupWidth - 20);
+            const y = Math.min(event.clientY + 20, window.innerHeight - popupHeight - 20);
+            
+            popup.style.left = Math.max(20, x) + 'px';
+            popup.style.top = Math.max(20, y) + 'px';
+            popup.style.maxHeight = popupHeight + 'px';
+        }
+        
+        function hideTokenPopup() {
+            const popup = document.getElementById('tokenPopup');
+            popup.classList.remove('visible');
+        }
+
+        function setupControls() {
+            const fontSizeSlider = document.getElementById('fontSize');
+            const spacingSlider = document.getElementById('spacing');
+            const angleSlider = document.getElementById('branchAngle');
+            const speedSlider = document.getElementById('animationSpeed');
+
+            fontSizeSlider.addEventListener('input', (e) => {
+                document.getElementById('fontSizeValue').textContent = e.target.value;
+                rebuildVisualization();
+            });
+
+            spacingSlider.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                document.getElementById('spacingValue').textContent = value.toFixed(1);
+                rebuildVisualization();
+            });
+
+            angleSlider.addEventListener('input', (e) => {
+                document.getElementById('angleValue').textContent = e.target.value;
+                rebuildVisualization();
+            });
+
+            speedSlider.addEventListener('input', (e) => {
+                animationState.speed = parseFloat(e.target.value);
+                document.getElementById('speedValue').textContent = animationState.speed.toFixed(1);
+            });
+        }
+
+        function rebuildVisualization() {
+            if (treeData) {
+                const wasPlaying = animationState.isPlaying;
+                pauseAnimation();
+                buildVisualization(false);
+                if (wasPlaying) {
+                    playAnimation();
+                }
+            }
+        }
+
+        function playAnimation() {
+            if (animationState.isPlaying) return;
+            if (animationState.totalSteps === 0) return;
+
+            // Hide popup when animation starts
+            hideTokenPopup();
+
+            animationState.isPlaying = true;
+            document.getElementById('playBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+
+            let lastStepTime = Date.now();
+            const stepDuration = 1500 / animationState.speed; // Duration per token
+
+            function animate() {
+                if (!animationState.isPlaying) return;
+
+                const now = Date.now();
+                const elapsed = now - lastStepTime;
+
+                if (elapsed >= stepDuration) {
+                    // Move to next token
+                    if (animationState.currentStep < animationState.totalSteps - 1) {
+                        animationState.currentStep++;
+                    } else {
+                        // Loop back to start
+                        animationState.currentStep = 0;
+                    }
+                    showStep(animationState.currentStep);
+                    lastStepTime = now;
+                }
+
+                animationState.animationFrame = requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        function pauseAnimation() {
+            animationState.isPlaying = false;
+            document.getElementById('playBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            if (animationState.animationFrame) {
+                cancelAnimationFrame(animationState.animationFrame);
+                animationState.animationFrame = null;
+            }
+        }
+
+        function restartAnimation() {
+            pauseAnimation();
+            animationState.currentStep = 0;
+            showStep(0);
+        }
+
+        function resetView() {
+            const textFlow = document.getElementById('textFlow');
+            textFlow.scrollTo(0, 0);
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            const popup = document.getElementById('tokenPopup');
+            if (!popup.contains(e.target) && !e.target.classList.contains('token-span')) {
+                hideTokenPopup();
+            }
+        });
+        
+        // Initialize
+        loadDefaultFile();
+    </script>
+</body>
+</html>

@@ -8,16 +8,33 @@ Usage:
 import json
 import argparse
 import os
+import html as html_module
 from datetime import datetime
 
 def generate_html(data, output_file):
     """Generate HTML visualization from evaluation results."""
     
-    models = list(data['detailed_results'].keys())
-    summary = data['summary']
+    # Detect format: finetune format has detailed_results as a list
+    is_finetune_format = isinstance(data.get('detailed_results'), list)
     
-    # Calculate statistics
-    total_problems = len(data['detailed_results'][models[0]]['problems']) if models else 0
+    if is_finetune_format:
+        # Finetune format: detailed_results is a list, summary info at top level
+        problems = data['detailed_results']
+        total_problems = len(problems)
+        models = ['default']  # Single model in finetune format
+        summary = [{
+            'model_name': data.get('checkpoint_dir', 'default').split('/')[-1] or 'default',
+            'accuracy_percent': data.get('accuracy_percent', 0.0),
+            'num_correct': data.get('num_correct', 0),
+            'num_total': data.get('num_total', 0)
+        }]
+        model_name = summary[0]['model_name']
+    else:
+        # Original format: detailed_results is a dict with model names as keys
+        models = list(data['detailed_results'].keys())
+        summary = data['summary']
+        total_problems = len(data['detailed_results'][models[0]]['problems']) if models else 0
+        model_name = models[0] if models else 'default'
     
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -309,6 +326,8 @@ def generate_html(data, output_file):
             Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} | 
             Total Problems: {total_problems} |
             Models Evaluated: {len(models)}
+            {f" | Step: {data.get('step', 'N/A')}" if is_finetune_format and data.get('step') else ""}
+            {f" | Checkpoint: {data.get('checkpoint_dir', '').split('/')[-1]}" if is_finetune_format and data.get('checkpoint_dir') else ""}
         </div>
         
         <div class="summary">
@@ -375,24 +394,36 @@ def generate_html(data, output_file):
 """
     
     # Add problem cards
-    # Get problems from the first model (all models should have same problems)
-    if models:
-        first_model = models[0]
-        problems = data['detailed_results'][first_model]['problems']
-        
-        for problem in problems:
+    # Get problems - either from finetune format (direct list) or original format (from first model)
+    if is_finetune_format:
+        # Problems already extracted above
+        pass
+    else:
+        if models:
+            first_model = models[0]
+            problems = data['detailed_results'][first_model]['problems']
+        else:
+            problems = []
+    
+    for problem in problems:
             problem_id = problem['problem_id']
             question = problem['question']
             ground_truth = problem.get('ground_truth_answer', 'N/A')
-            predicted = problem.get('predicted_answer', 'N/A')
+            predicted = problem.get('predicted_answer', 'N/A') or 'None'
             correct = problem.get('correct', False)
             model_response = problem.get('model_response', '')
             
             status_class = 'correct' if correct else 'incorrect'
             status_text = 'Correct' if correct else 'Incorrect'
             
+            # Build models dict for data attribute
+            if is_finetune_format:
+                models_dict = {model_name: correct}
+            else:
+                models_dict = {m: next((p.get("correct", False) for p in data["detailed_results"][m]["problems"] if p.get("problem_id") == problem_id), False) for m in models}
+            
             html += f"""
-            <div class="problem-card {status_class}" data-problem-id="{problem_id}" data-status="{status_class}" data-models='{json.dumps({m: next((p.get("correct", False) for p in data["detailed_results"][m]["problems"] if p.get("problem_id") == problem_id), False) for m in models})}'>
+            <div class="problem-card {status_class}" data-problem-id="{problem_id}" data-status="{status_class}" data-models='{json.dumps(models_dict)}'>
                 <div class="problem-header">
                     <span class="problem-id">Problem #{problem_id}</span>
                     <span class="status-badge {status_class}">{status_text}</span>
@@ -401,28 +432,28 @@ def generate_html(data, output_file):
                 <div class="problem-content">
                     <div class="problem-section">
                         <h4>Question</h4>
-                        <p>{question}</p>
+                        <p>{html_module.escape(question)}</p>
                     </div>
                     
                     <div class="answer-comparison">
                         <div class="answer-box ground-truth">
                             <h5>Ground Truth</h5>
-                            <div class="value">{ground_truth}</div>
+                            <div class="value">{html_module.escape(str(ground_truth))}</div>
                         </div>
                         <div class="answer-box predicted">
                             <h5>Predicted</h5>
-                            <div class="value">{predicted}</div>
+                            <div class="value">{html_module.escape(str(predicted))}</div>
                         </div>
                     </div>
                     
                     <div class="problem-section">
                         <h4>Model Response</h4>
-                        <p>{model_response[:500]}{'...' if len(model_response) > 500 else ''}</p>
+                        <p>{html_module.escape(model_response[:500])}{'...' if len(model_response) > 500 else ''}</p>
                     </div>
 """
             
-            # Add model comparison if multiple models
-            if len(models) > 1:
+            # Add model comparison if multiple models (only for original format)
+            if not is_finetune_format and len(models) > 1:
                 html += '<div class="problem-section"><h4>Model Comparison</h4><div class="model-comparison">'
                 for model in models:
                     # Find the problem with matching problem_id in this model's results

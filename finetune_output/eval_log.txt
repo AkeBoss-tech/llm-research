@@ -1,0 +1,52 @@
+2025-12-06 21:36:33,176 - datasets - [32m[1mINFO[0m - PyTorch version 2.5.1 available.
+2025-12-06 21:36:33,176 - datasets - [32m[1mINFO[0m - PyTorch version 2.5.1 available.
+Autodetected device type: cuda
+[W1206 21:36:37.433183173 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+[W1206 21:36:37.799678852 CUDAAllocatorConfig.h:28] Warning: expandable_segments not supported on this platform (function operator())
+2025-12-06 21:36:38,180 - nanochat.common - [32m[1mINFO[0m - Distributed world size: 2
+================================================================================
+GSM8K Checkpoint Evaluation
+================================================================================
+Checkpoint directory: /home/ad2046/llm-research/output/default_finetune_50
+Step: 748
+Device: cuda
+Max problems: 1000
+================================================================================
+
+================================================================================
+Evaluating checkpoint: /home/ad2046/llm-research/output/default_finetune_50
+Step: 748
+================================================================================
+Loading model from checkpoint...
+/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py:44: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model_data = torch.load(model_path, map_location=device)
+/cache/home/ad2046/llm-research/nanochat/checkpoint_manager.py:44: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  model_data = torch.load(model_path, map_location=device)
+2025-12-06 21:36:42,408 - nanochat.checkpoint_manager - [32m[1mINFO[0m - Building model with config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 20, 'n_head': 10, 'n_kv_head': 10, 'n_embd': 1280}
+Model config: {'sequence_len': 2048, 'vocab_size': 65536, 'n_layer': 20, 'n_head': 10, 'n_kv_head': 10, 'n_embd': 1280}
+Source model: default
+Checkpoint step: 748
+Converted model to bfloat16
+2025-12-06 21:36:44,302 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k "HTTP/1.1 200 OK"
+2025-12-06 21:36:44,302 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k "HTTP/1.1 200 OK"
+2025-12-06 21:36:44,505 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k "HTTP/1.1 200 OK"
+2025-12-06 21:36:44,511 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k "HTTP/1.1 200 OK"
+2025-12-06 21:36:44,935 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/e53f048856ff4f594e959d75785d2c2d37b678ee "HTTP/1.1 200 OK"
+2025-12-06 21:36:44,964 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/e53f048856ff4f594e959d75785d2c2d37b678ee/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2025-12-06 21:36:44,979 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/revision/e53f048856ff4f594e959d75785d2c2d37b678ee "HTTP/1.1 200 OK"
+2025-12-06 21:36:45,003 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/e53f048856ff4f594e959d75785d2c2d37b678ee/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2025-12-06 21:36:45,012 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/e53f048856ff4f594e959d75785d2c2d37b678ee?recursive=false&expand=false "HTTP/1.1 200 OK"
+2025-12-06 21:36:45,030 - httpx - [32m[1mINFO[0m - HTTP Request: GET https://huggingface.co/api/datasets/openai/gsm8k/tree/e53f048856ff4f594e959d75785d2c2d37b678ee?recursive=false&expand=false "HTTP/1.1 200 OK"
+
+Running GSM8K evaluation...
+Parameters: num_samples=1, temperature=0.0, top_k=50, max_new_tokens=512
+Evaluating 1000 problems
+
+================================================================================
+Checkpoint: /home/ad2046/llm-research/output/default_finetune_50 (step 748)
+GSM8K Accuracy: 4.10% (41/1000)
+================================================================================
+
+
+Results saved to: /scratch/ad2046/gsm8k_eval_finetune_50/job_48682306/eval_step_000748_20251206_213638.json
+Accuracy: 4.10% (41/1000)

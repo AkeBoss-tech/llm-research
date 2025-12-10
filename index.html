@@ -25,9 +25,14 @@
             </div>
             <nav class="hidden md:flex gap-6 text-sm font-medium text-slate-600">
                 <a href="#overview" class="hover:text-indigo-600 transition-colors">Overview</a>
+                <a href="#gsm8k" class="hover:text-indigo-600 transition-colors">GSM8K</a>
+                <a href="#nanochat" class="hover:text-indigo-600 transition-colors">NanoChat</a>
                 <a href="#architectures" class="hover:text-indigo-600 transition-colors">Architectures</a>
-                <a href="#data-strategy" class="hover:text-indigo-600 transition-colors">Data Strategy</a>
-                <a href="#roadmap" class="hover:text-indigo-600 transition-colors">Roadmap</a>
+                <a href="#tools" class="hover:text-indigo-600 transition-colors">Tools</a>
+                <a href="#experiments" class="hover:text-indigo-600 transition-colors">Experiments</a>
+                <a href="#visualizations" class="hover:text-indigo-600 transition-colors">Visualizations</a>
+                <a href="#resources" class="hover:text-indigo-600 transition-colors">Resources</a>
+                <a href="#future" class="hover:text-indigo-600 transition-colors">Future Work</a>
                 <a href="#team" class="hover:text-indigo-600 transition-colors">Team</a>
             </nav>
         </div>
@@ -42,16 +47,155 @@
             <h2 class="text-4xl sm:text-6xl font-bold text-slate-900 tracking-tight mb-6">
                 NanoChat Math Reasoning
             </h2>
-            <p class="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            <p class="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-8">
                 Shifting the frontier from "more parameters" to <strong>"more compute per token."</strong><br>
                 Investigating System 2 reasoning, latent space thinking, and recursive architectures in a controlled environment.
             </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#gsm8k" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
+                    View Results
+                </a>
+                <a href="#visualizations" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                    Explore Visualizations
+                </a>
+                <a href="https://github.com/karpathy/nanochat" target="_blank" class="px-6 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors font-semibold">
+                    GitHub Repository
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Main Content -->
     <main class="flex-grow">
         
+        <!-- GSM8K Math Reasoning Section -->
+        <section id="gsm8k" class="py-20 bg-white border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">GSM8K: Grade School Math Reasoning</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        GSM8K is a dataset of 8,500 high-quality grade school math word problems created by human problem writers. 
+                        These problems require multi-step reasoning and test a model's ability to understand, decompose, and solve mathematical word problems.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-100">
+                        <h4 class="text-xl font-bold text-slate-900 mb-4">Why GSM8K?</h4>
+                        <ul class="space-y-3 text-slate-700">
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold mt-1">•</span>
+                                <span><strong>Multi-step reasoning:</strong> Problems require breaking down into sub-problems and solving sequentially</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold mt-1">•</span>
+                                <span><strong>Real-world context:</strong> Word problems test natural language understanding alongside math</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold mt-1">•</span>
+                                <span><strong>Verifiable answers:</strong> Each problem has a single correct numerical answer</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-blue-600 font-bold mt-1">•</span>
+                                <span><strong>Standard benchmark:</strong> Widely used to evaluate mathematical reasoning in LLMs</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-100">
+                        <h4 class="text-xl font-bold text-slate-900 mb-4">Example Problem</h4>
+                        <div class="bg-white p-6 rounded-lg border border-green-200 mb-4">
+                            <p class="text-slate-700 mb-3"><strong>Question:</strong> Janet has 16 candy bars. She eats 3 of them. How many does she have left?</p>
+                            <p class="text-slate-600 text-sm mb-2"><strong>Solution:</strong></p>
+                            <p class="text-slate-600 text-sm">Janet starts with 16 candy bars.</p>
+                            <p class="text-slate-600 text-sm">She eats 3, so we subtract: 16 - 3 = 13</p>
+                            <p class="text-slate-600 text-sm font-semibold">#### 13</p>
+                        </div>
+                        <p class="text-sm text-slate-600">Models must show their work and arrive at the correct final answer.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900 rounded-2xl p-8 text-center">
+                    <h4 class="text-white text-xl font-bold mb-4">Current Results</h4>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-slate-800 rounded-lg p-6">
+                            <div class="text-4xl font-bold text-indigo-400 mb-2">4.1%</div>
+                            <div class="text-slate-400 text-sm">Accuracy (41/1000)</div>
+                            <div class="text-slate-500 text-xs mt-2">After 200-step finetune</div>
+                        </div>
+                        <div class="bg-slate-800 rounded-lg p-6">
+                            <div class="text-4xl font-bold text-green-400 mb-2">748</div>
+                            <div class="text-slate-400 text-sm">Training Steps</div>
+                            <div class="text-slate-500 text-xs mt-2">Checkpoint evaluated</div>
+                        </div>
+                        <div class="bg-slate-800 rounded-lg p-6">
+                            <a href="finetune_output/report.html" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline text-sm">
+                                View Detailed Report →
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-6 grid md:grid-cols-2 gap-4">
+                        <a href="finetune_output/report.html" target="_blank" class="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors">
+                            <div class="text-indigo-400 font-semibold mb-1">Latest Evaluation Report</div>
+                            <div class="text-slate-400 text-xs">finetune_output/report.html</div>
+                        </a>
+                        <a href="output2/report.html" target="_blank" class="bg-slate-800 rounded-lg p-4 hover:bg-slate-700 transition-colors">
+                            <div class="text-indigo-400 font-semibold mb-1">Previous Results</div>
+                            <div class="text-slate-400 text-xs">output2/report.html</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NanoChat Section -->
+        <section id="nanochat" class="py-20 bg-slate-50 border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">NanoChat: The Best ChatGPT That $100 Can Buy</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        NanoChat is a full-stack, minimal, hackable implementation of an LLM from scratch. 
+                        It's designed to be fully configurable, tweakable, and trained end-to-end on a budget.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 mb-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-900 mb-3">Why NanoChat?</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li>• Full control over training pipeline</li>
+                            <li>• Clean, readable codebase (~8K lines)</li>
+                            <li>• Easy to modify and experiment</li>
+                            <li>• Educational: understand transformers</li>
+                            <li>• Minimal dependencies</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-900 mb-3">Key Features</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li>• Custom Rust BPE tokenizer</li>
+                            <li>• RoPE positional embeddings</li>
+                            <li>• Group-Query Attention (GQA)</li>
+                            <li>• ReLU² activation in MLP</li>
+                            <li>• Tool use with Python execution</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-900 mb-3">Training Pipeline</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li>1. Pretraining on web data</li>
+                            <li>2. Mid-training (instruction tuning)</li>
+                            <li>3. Supervised Fine-Tuning (SFT)</li>
+                            <li>4. Reinforcement Learning (RL)</li>
+                            <li>5. Evaluation & reporting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Project Overview Section -->
         <section id="overview" class="py-20">
             <div class="max-w-6xl mx-auto px-6">
@@ -115,8 +259,63 @@
         <section id="architectures" class="py-20 bg-slate-50 border-t border-slate-200">
             <div class="max-w-6xl mx-auto px-6">
                 <div class="text-center mb-16">
-                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Experimental Architectures</h3>
-                    <p class="text-slate-600 max-w-2xl mx-auto">Moving from System 1 (Fast/Shallow) to System 2 (Slow/Deep) Thinking.</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Model Architectures: d20, d32, d34</h3>
+                    <p class="text-slate-600 max-w-2xl mx-auto">Different model depths (layers) for different compute budgets and performance trade-offs.</p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <div class="bg-white rounded-xl overflow-hidden border-2 border-indigo-200 shadow-sm">
+                        <div class="bg-indigo-600 px-6 py-4">
+                            <h4 class="text-white font-bold text-lg">d20 (Default)</h4>
+                            <span class="text-indigo-200 text-xs">~$100 Training Cost</span>
+                        </div>
+                        <div class="p-6">
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li>• 20 transformer layers</li>
+                                <li>• ~1.2B parameters</li>
+                                <li>• 4 hours training time</li>
+                                <li>• Baseline for experiments</li>
+                                <li>• Good for rapid iteration</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl overflow-hidden border-2 border-purple-200 shadow-sm">
+                        <div class="bg-purple-600 px-6 py-4">
+                            <h4 class="text-white font-bold text-lg">d32</h4>
+                            <span class="text-purple-200 text-xs">~$800 Training Cost</span>
+                        </div>
+                        <div class="p-6">
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li>• 32 transformer layers</li>
+                                <li>• ~1.9B parameters</li>
+                                <li>• 33 hours training time</li>
+                                <li>• Outperforms GPT-2</li>
+                                <li>• Better reasoning capacity</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl overflow-hidden border-2 border-teal-200 shadow-sm">
+                        <div class="bg-teal-600 px-6 py-4">
+                            <h4 class="text-white font-bold text-lg">d34</h4>
+                            <span class="text-teal-200 text-xs">~$1000+ Training Cost</span>
+                        </div>
+                        <div class="p-6">
+                            <ul class="space-y-2 text-sm text-slate-700">
+                                <li>• 34 transformer layers</li>
+                                <li>• ~2.1B parameters</li>
+                                <li>• 40+ hours training time</li>
+                                <li>• Maximum performance tier</li>
+                                <li>• Best for final evaluations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-12">
+                    <h4 class="text-2xl font-bold text-slate-900 mb-6">Experimental Architectures</h4>
+                    <p class="text-slate-600 max-w-2xl mx-auto mb-8">Moving from System 1 (Fast/Shallow) to System 2 (Slow/Deep) Thinking.</p>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8">
@@ -198,6 +397,279 @@
             </div>
         </section>
 
+        <!-- Tools Section -->
+        <section id="tools" class="py-20 bg-white border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Tool Use: Python Execution & Calculator</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        NanoChat supports tool use through special tokens that allow the model to pause generation, 
+                        execute Python code, and resume with the results. This solves the "large number hallucination" problem.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-bold text-slate-900 mb-4">How It Works</h4>
+                        <div class="space-y-4">
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <p class="text-sm font-semibold text-slate-900 mb-2">1. Model generates special token:</p>
+                                <code class="text-xs bg-slate-900 text-green-400 p-2 rounded block">&lt;|python_start|&gt;</code>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <p class="text-sm font-semibold text-slate-900 mb-2">2. Generation pauses, code is extracted:</p>
+                                <code class="text-xs bg-slate-900 text-green-400 p-2 rounded block">15 * 4 + 3</code>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <p class="text-sm font-semibold text-slate-900 mb-2">3. Python executes in sandbox:</p>
+                                <code class="text-xs bg-slate-900 text-green-400 p-2 rounded block">result = 63</code>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <p class="text-sm font-semibold text-slate-900 mb-2">4. Result inserted, generation resumes:</p>
+                                <code class="text-xs bg-slate-900 text-green-400 p-2 rounded block">&lt;|output_start|&gt;63&lt;|output_end|&gt;</code>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-900 rounded-2xl p-8 text-slate-300 font-mono text-sm">
+                        <div class="mb-4">
+                            <span class="text-purple-400">def</span> <span class="text-blue-400">generate</span>(prompt):
+                        </div>
+                        <div class="pl-4 mb-2">
+                            <span class="text-purple-400">while</span> <span class="text-yellow-300">True</span>:
+                        </div>
+                        <div class="pl-8 mb-2">
+                            token = model.generate(...)
+                        </div>
+                        <div class="pl-8 mb-2">
+                            <span class="text-purple-400">if</span> token == <span class="text-green-400">python_start</span>:
+                        </div>
+                        <div class="pl-12 mb-2 text-slate-500">
+                            # Extract code between tokens
+                        </div>
+                        <div class="pl-12 mb-2">
+                            code = extract_code()
+                        </div>
+                        <div class="pl-12 mb-2">
+                            result = <span class="text-blue-400">execute</span>(code)
+                        </div>
+                        <div class="pl-12 mb-2">
+                            inject_result(result)
+                        </div>
+                        <div class="pl-8 mb-2">
+                            <span class="text-purple-400">else</span>:
+                        </div>
+                        <div class="pl-12">
+                            <span class="text-purple-400">return</span> output
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-indigo-50 rounded-xl p-6 border border-indigo-200">
+                    <h4 class="font-bold text-slate-900 mb-3">Benefits for Math Reasoning</h4>
+                    <ul class="grid md:grid-cols-2 gap-3 text-sm text-slate-700">
+                        <li class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold">✓</span>
+                            <span>Offloads arithmetic (which transformers struggle with) to Python</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold">✓</span>
+                            <span>Model focuses on reasoning and problem decomposition</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold">✓</span>
+                            <span>Prevents cascading errors from incorrect calculations</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold">✓</span>
+                            <span>Sandboxed execution with timeout (3 seconds)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experiments Section -->
+        <section id="experiments" class="py-20 bg-slate-50 border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Experiments & Results</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        Our research journey: from baseline models to fine-tuning experiments and Tree of Thought reasoning.
+                    </p>
+                </div>
+                
+                <div class="space-y-8">
+                    <!-- Finetuning Experiment -->
+                    <div class="bg-white rounded-xl p-8 border border-slate-200 shadow-sm">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h4 class="text-xl font-bold text-slate-900 mb-2">Fine-Tuning on GSM8K</h4>
+                                <p class="text-slate-600 text-sm">200 steps of supervised fine-tuning on GSM8K training set</p>
+                            </div>
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Completed</span>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-6 mt-6">
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-slate-900 mb-1">200</div>
+                                <div class="text-sm text-slate-600">Training Steps</div>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-slate-900 mb-1">4.1%</div>
+                                <div class="text-sm text-slate-600">Final Accuracy</div>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-slate-900 mb-1">+0.1%</div>
+                                <div class="text-sm text-slate-600">Improvement</div>
+                            </div>
+                        </div>
+                        <div class="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <p class="text-sm text-amber-900"><strong>Analysis:</strong> Minimal improvement suggests 200 steps is insufficient. Typical fine-tuning requires 1-2 full epochs (1000-2000 steps) for meaningful weight updates. The model was still in the learning rate warmup phase.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tree of Thought -->
+                    <div class="bg-white rounded-xl p-8 border border-slate-200 shadow-sm">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h4 class="text-xl font-bold text-slate-900 mb-2">Tree of Thought (Lookahead Decoding)</h4>
+                                <p class="text-slate-600 text-sm">Token-level tree search exploring K candidates for D depth before committing</p>
+                            </div>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">Implemented</span>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6 mt-6">
+                            <div>
+                                <h5 class="font-semibold text-slate-900 mb-3">How It Works</h5>
+                                <ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
+                                    <li>At each position, get top K most likely next tokens (e.g., K=3)</li>
+                                    <li>For each candidate, simulate D tokens ahead greedily (e.g., D=10)</li>
+                                    <li>Calculate cumulative log probability for each branch</li>
+                                    <li>Pick the branch with highest score</li>
+                                    <li>Commit only the first token of the winning branch, then repeat</li>
+                                </ol>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-slate-900 mb-3">Implementation Details</h5>
+                                <ul class="space-y-2 text-sm text-slate-700">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-blue-600 font-bold">•</span>
+                                        <span>Configurable K (candidates) and D (depth)</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-blue-600 font-bold">•</span>
+                                        <span>Scores branches by cumulative log probability</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-blue-600 font-bold">•</span>
+                                        <span>Compatible with nanochat's Engine class</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-blue-600 font-bold">•</span>
+                                        <span>10-30x slower than standard generation</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <p class="text-sm text-blue-900"><strong>Use Case:</strong> Particularly useful for math reasoning tasks where early mistakes can cascade and ruin the entire solution. The lookahead allows the model to "think ahead" before committing to a token.</p>
+                        </div>
+                        <div class="mt-6 flex gap-4">
+                            <a href="visualize_tree_of_thought.html" target="_blank" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold">
+                                View 2D Visualization →
+                            </a>
+                            <a href="visualize_tree_3d.html" target="_blank" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-semibold">
+                                View 3D Visualization →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visualizations Section -->
+        <section id="visualizations" class="py-20 bg-white border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Interactive Visualizations</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        Explore our Tree of Thought experiments through interactive visualizations that show how the model explores different reasoning paths.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- 2D Visualization -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-200 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xl">
+                                📊
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-900">2D Tree Visualization</h4>
+                        </div>
+                        <p class="text-slate-700 mb-6">
+                            Step-by-step visualization showing candidate tokens at each position, their probabilities, and the selected path through the reasoning tree.
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700 mb-6">
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-600 font-bold">•</span>
+                                <span>View all candidate tokens at each step</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-600 font-bold">•</span>
+                                <span>See probability scores and rollouts</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-600 font-bold">•</span>
+                                <span>Load JSON tree data files</span>
+                            </li>
+                        </ul>
+                        <a href="visualize_tree_of_thought.html" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                            Open 2D Visualization →
+                        </a>
+                    </div>
+                    
+                    <!-- 3D Visualization -->
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-8 border border-purple-200 hover:shadow-lg transition-shadow">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center text-white text-xl">
+                                🌳
+                            </div>
+                            <h4 class="text-xl font-bold text-slate-900">3D Tree Visualization</h4>
+                        </div>
+                        <p class="text-slate-700 mb-6">
+                            Immersive 3D visualization of the reasoning tree using WebGL, allowing you to explore the branching structure in three dimensions.
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700 mb-6">
+                            <li class="flex items-start gap-2">
+                                <span class="text-purple-600 font-bold">•</span>
+                                <span>Interactive 3D tree structure</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-purple-600 font-bold">•</span>
+                                <span>Real-time generated text display</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-purple-600 font-bold">•</span>
+                                <span>Zoom, pan, and rotate controls</span>
+                            </li>
+                        </ul>
+                        <a href="visualize_tree_3d.html" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                            Open 3D Visualization →
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-slate-50 rounded-xl p-6 border border-slate-200">
+                    <h4 class="font-bold text-slate-900 mb-3">How to Use</h4>
+                    <ol class="space-y-2 text-sm text-slate-700 list-decimal list-inside">
+                        <li>Generate tree data using the Tree of Thought (Lookahead) decoding method</li>
+                        <li>Save the output as a JSON file (e.g., <code class="bg-slate-200 px-1 rounded">tree_data_problem_1.json</code>)</li>
+                        <li>Open either visualization tool and load your JSON file</li>
+                        <li>Explore the reasoning paths the model explored before making each decision</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
         <!-- Data Strategy -->
         <section id="data-strategy" class="py-20 border-t border-slate-200">
             <div class="max-w-6xl mx-auto px-6">
@@ -267,6 +739,140 @@
             </div>
         </section>
 
+        <!-- Future Work Section -->
+        <section id="future" class="py-20 bg-white border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Future Research Directions</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        Additional ideas and experiments to improve mathematical reasoning capabilities.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Generator-Validator -->
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-xl border border-purple-200">
+                        <h4 class="text-xl font-bold text-slate-900 mb-3">Generator-Validator Architecture</h4>
+                        <p class="text-slate-700 text-sm mb-4">
+                            One model generates solutions while another model validates them. The validator scores each reasoning step, 
+                            and the generator learns to produce higher-quality solutions.
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-purple-600 font-bold">•</span>
+                                <span>Generator model produces candidate solutions</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-purple-600 font-bold">•</span>
+                                <span>Validator model scores each reasoning step</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-purple-600 font-bold">•</span>
+                                <span>Feedback loop improves generation quality</span>
+                            </li>
+                        </ul>
+                        <div class="mt-4 text-xs text-slate-500 italic">Code implementation planned</div>
+                    </div>
+                    
+                    <!-- Continuous Chain of Thought -->
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200">
+                        <h4 class="text-xl font-bold text-slate-900 mb-3">Continuous Chain of Thought</h4>
+                        <p class="text-slate-700 text-sm mb-4">
+                            Instead of discrete reasoning steps, allow the model to maintain a continuous reasoning stream 
+                            that can be refined and iterated upon.
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-600 font-bold">•</span>
+                                <span>Maintain reasoning state across tokens</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-600 font-bold">•</span>
+                                <span>Allow refinement of intermediate steps</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-600 font-bold">•</span>
+                                <span>Enable backtracking and correction</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Synthetic Dataset -->
+                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-8 rounded-xl border border-orange-200">
+                        <h4 class="text-xl font-bold text-slate-900 mb-3">Synthetic Dataset Generation</h4>
+                        <p class="text-slate-700 text-sm mb-4">
+                            Generate high-quality synthetic math problems with known solution paths to augment training data 
+                            and improve generalization.
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-orange-600 font-bold">•</span>
+                                <span>Programmatically generate math problems</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-orange-600 font-bold">•</span>
+                                <span>Ensure diverse problem types and difficulty</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-orange-600 font-bold">•</span>
+                                <span>More finetuning with expanded dataset</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- RL Fine-Tuning -->
+                    <div class="bg-gradient-to-br from-red-50 to-pink-50 p-8 rounded-xl border border-red-200">
+                        <h4 class="text-xl font-bold text-slate-900 mb-3">Reinforcement Learning Fine-Tuning</h4>
+                        <p class="text-slate-700 text-sm mb-4">
+                            Use RL to fine-tune the model by rewarding correct solutions and penalizing incorrect ones, 
+                            potentially with process-level rewards for correct intermediate steps.
+                        </p>
+                        <ul class="space-y-2 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-red-600 font-bold">•</span>
+                                <span>Reward correct final answers</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-red-600 font-bold">•</span>
+                                <span>Process supervision for intermediate steps</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-red-600 font-bold">•</span>
+                                <span>Learn from mistakes through policy gradients</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Abacus Embeddings -->
+                    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-8 rounded-xl border border-cyan-200 md:col-span-2">
+                        <h4 class="text-xl font-bold text-slate-900 mb-3">Abacus Embeddings</h4>
+                        <p class="text-slate-700 text-sm mb-4">
+                            Specialized embeddings that encode numerical values in a way that preserves mathematical relationships. 
+                            Numbers are embedded in a structured space where arithmetic operations map to geometric transformations.
+                        </p>
+                        <ul class="grid md:grid-cols-2 gap-3 text-sm text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-600 font-bold">•</span>
+                                <span>Structured numerical representations</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-600 font-bold">•</span>
+                                <span>Arithmetic as geometric operations</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-600 font-bold">•</span>
+                                <span>Better handling of large numbers</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-600 font-bold">•</span>
+                                <span>Preserves mathematical relationships</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Research Plan / Roadmap -->
         <section id="roadmap" class="py-20 bg-slate-100">
             <div class="max-w-4xl mx-auto px-6">
@@ -325,6 +931,95 @@
             </div>
         </section>
 
+        <!-- Quick Links & Resources -->
+        <section id="resources" class="py-20 bg-slate-50 border-t border-slate-200">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl font-bold text-slate-900 mb-4">Quick Links & Resources</h3>
+                    <p class="text-slate-600 max-w-3xl mx-auto">
+                        Access important files, reports, and documentation for this research project.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Reports -->
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+                            <span class="text-2xl">📊</span>
+                            Evaluation Reports
+                        </h4>
+                        <ul class="space-y-2 text-sm">
+                            <li>
+                                <a href="finetune_output/report.html" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Latest Evaluation Report
+                                </a>
+                            </li>
+                            <li>
+                                <a href="output2/report.html" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Previous Results
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Documentation -->
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+                            <span class="text-2xl">📚</span>
+                            Documentation
+                        </h4>
+                        <ul class="space-y-2 text-sm">
+                            <li>
+                                <a href="GSM8K_RESEARCH_GUIDE.md" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    GSM8K Research Guide
+                                </a>
+                            </li>
+                            <li>
+                                <a href="IMPLEMENTATION_SUMMARY.md" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Implementation Summary
+                                </a>
+                            </li>
+                            <li>
+                                <a href="TEST_LOOKAHEAD_README.md" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Tree of Thought Guide
+                                </a>
+                            </li>
+                            <li>
+                                <a href="TREE_VISUALIZATION_GUIDE.md" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Visualization Guide
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Data & Code -->
+                    <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+                            <span class="text-2xl">💾</span>
+                            Data & Code
+                        </h4>
+                        <ul class="space-y-2 text-sm">
+                            <li>
+                                <a href="tree_data_problem_1.json" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Sample Tree Data (JSON)
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/karpathy/nanochat" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    NanoChat Repository
+                                </a>
+                            </li>
+                            <li>
+                                <a href="README.md" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                                    Project README
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Team Section -->
         <section id="team" class="py-20 bg-white border-t border-slate-200">
             <div class="max-w-6xl mx-auto px-6 text-center">
@@ -370,8 +1065,21 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-12">
-        <div class="max-w-5xl mx-auto px-6 text-center text-slate-500 text-sm">
-            <p>&copy; 2025 NanoChat Research Project. Open Source Micro-Reasoning Laboratory.</p>
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center text-slate-500 text-sm mb-6">
+                <p>&copy; 2025 NanoChat Research Project. Open Source Micro-Reasoning Laboratory.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 text-sm">
+                <a href="https://github.com/karpathy/nanochat" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                    GitHub Repository
+                </a>
+                <a href="README.md" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                    Documentation
+                </a>
+                <a href="#overview" class="text-indigo-600 hover:text-indigo-700 hover:underline">
+                    About
+                </a>
+            </div>
         </div>
     </footer>
 

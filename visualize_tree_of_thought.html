@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree of Thought Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            padding-top: 80px;
+        }
+        
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .controls {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .file-input-wrapper {
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .problem-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .problem-info h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .problem-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .tree-container {
+            overflow-x: auto;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            min-height: 400px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .selected-token {
+            background: #2ecc71;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .candidates {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .candidate {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .candidate.selected {
+            border-color: #2ecc71;
+            background: #d4edda;
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
+        }
+
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .candidate-index {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .candidate-token {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 5px 0;
+        }
+
+        .candidate-score {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .candidate-prob {
+            color: #3498db;
+            font-size: 12px;
+        }
+
+        .rollout-preview {
+            margin-top: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="nav-header">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">N</div>
+                <h1 class="text-xl font-bold text-slate-900">Tree of Thought Visualization</h1>
+            </div>
+            <a href="index.html" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold">
+                ← Back to Home
+            </a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>🌳 Tree of Thought Visualization</h1>
+        
+        <div class="controls">
+            <div class="file-input-wrapper">
+                <label for="treeFile">Load Tree Data (JSON):</label>
+                <input type="file" id="treeFile" accept=".json" />
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">
+                <p>Load a tree data JSON file to visualize the Tree of Thought exploration</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('treeFile');
+        const contentDiv = document.getElementById('content');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const treeData = JSON.parse(e.target.result);
+                    renderTree(treeData);
+                } catch (error) {
+                    contentDiv.innerHTML = `<div class="error">Error parsing JSON: ${error.message}</div>`;
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function renderTree(data) {
+            if (!data.steps || data.steps.length === 0) {
+                contentDiv.innerHTML = '<div class="error">No steps found in tree data</div>';
+                return;
+            }
+
+            const problem = data.problem || {};
+            const config = data.config || {};
+
+            let html = `
+                <div class="problem-info">
+                    <h2>Problem</h2>
+                    <p><strong>Question:</strong> ${escapeHtml(problem.question || 'N/A')}</p>
+                    <p><strong>Ground Truth:</strong> ${escapeHtml(problem.ground_truth || 'N/A')}</p>
+                    <p><strong>Predicted Answer:</strong> ${escapeHtml(problem.answer || 'N/A')}</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Steps</div>
+                        <div class="stat-value">${data.steps.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Candidates per Step</div>
+                        <div class="stat-value">${config.k_candidates || 'N/A'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Lookahead Depth</div>
+                        <div class="stat-value">${config.depth || 'N/A'}</div>
+                    </div>
+                </div>
+
+                <div class="tree-container">
+            `;
+
+            data.steps.forEach((step, stepIdx) => {
+                html += `
+                    <div class="step">
+                        <div class="step-header">
+                            <div class="step-number">Step ${step.step}</div>
+                            <div class="selected-token">Selected: "${escapeHtml(step.selected_text || '')}"</div>
+                        </div>
+                        <div class="candidates">
+                `;
+
+                step.candidates.forEach((candidate, candIdx) => {
+                    const isSelected = candIdx === step.selected_candidate;
+                    html += `
+                        <div class="candidate ${isSelected ? 'selected' : ''}">
+                            <div class="candidate-header">
+                                <span class="candidate-index">Candidate ${candidate.index + 1}</span>
+                                ${isSelected ? '<span style="color: #2ecc71; font-weight: bold;">✓ SELECTED</span>' : ''}
+                            </div>
+                            <div class="candidate-token">"${escapeHtml(candidate.token_text || '')}"</div>
+                            <div class="candidate-prob">Initial Prob: ${(candidate.initial_prob * 100).toFixed(2)}%</div>
+                            <div class="candidate-score">Score: ${candidate.score.toFixed(4)}</div>
+                            ${candidate.rollout_text ? `
+                                <div class="rollout-preview">
+                                    Rollout: "${escapeHtml(candidate.rollout_text)}..."
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+            `;
+
+            contentDiv.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
