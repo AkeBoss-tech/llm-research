@@ -9,8 +9,6 @@ exclude:
   - rustbpe/target/
   - dev-ignore/
   - eval_bundle/
-  - output/
-  - finetune_output/
   - output2/
   - logs/
   - .git/
