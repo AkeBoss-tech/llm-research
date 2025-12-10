@@ -1,0 +1,30 @@
+# Jekyll configuration for GitHub Pages
+
+# Exclude directories and files from Jekyll processing
+# These are build artifacts, logs, and directories that shouldn't be part of the site
+exclude:
+  - wandb/
+  - .venv/
+  - __pycache__/
+  - rustbpe/target/
+  - dev-ignore/
+  - eval_bundle/
+  - output/
+  - finetune_output/
+  - output2/
+  - logs/
+  - .git/
+  - .vscode/
+  - .DS_Store
+  - "*.pyc"
+  - "*.py"
+  - "*.sh"
+  - "*.toml"
+  - "*.lock"
+  - tests/
+  - scripts/
+  - tasks/
+  - nanochat/
+  - rustbpe/
+  - exploration/
+  - dev/

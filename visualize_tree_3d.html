@@ -13,10 +13,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
+            background: #ffffff;
             color: #333;
             overflow-x: auto;
-            overflow-y: hidden;
+            overflow-y: auto;
         }
 
         .header-panel {
@@ -25,17 +25,17 @@
             left: 0;
             right: 0;
             height: 150px;
-            background: rgba(255, 255, 255, 0.95);
-            border-bottom: 2px solid #4CAF50;
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
             padding: 20px;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .header-panel h2 {
-            color: #4CAF50;
+            color: #333;
             margin-bottom: 15px;
             font-size: 18px;
+            font-weight: 600;
         }
         
         .nav-link {
@@ -43,39 +43,39 @@
             top: 20px;
             right: 20px;
             padding: 8px 16px;
-            background: #6366f1;
-            color: white;
+            background: #f5f5f5;
+            color: #333;
             text-decoration: none;
-            border-radius: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 14px;
-            font-weight: 600;
-            transition: background 0.2s;
+            font-weight: 500;
         }
         
         .nav-link:hover {
-            background: #4f46e5;
+            background: #e9e9e9;
         }
 
         .generated-text {
-            background: rgba(76, 175, 80, 0.1);
-            border-left: 3px solid #4CAF50;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
             padding: 15px;
             margin-bottom: 15px;
-            border-radius: 4px;
         }
 
         .generated-text-label {
-            color: #4CAF50;
-            font-size: 12px;
+            color: #666;
+            font-size: 11px;
             text-transform: uppercase;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .generated-text-content {
-            color: #333;
+            color: #000;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 500;
             word-wrap: break-word;
             line-height: 1.8;
         }
@@ -83,23 +83,15 @@
         .token-span {
             cursor: pointer;
             padding: 2px 4px;
-            border-radius: 3px;
-            transition: background-color 0.2s;
             position: relative;
         }
         
         .token-span:hover {
-            background-color: rgba(76, 175, 80, 0.2);
+            background-color: #f0f0f0;
         }
         
         .token-span.current {
-            background-color: rgba(76, 175, 80, 0.3);
-            animation: pulse 1s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { background-color: rgba(76, 175, 80, 0.3); }
-            50% { background-color: rgba(76, 175, 80, 0.5); }
+            background-color: #e8f5e9;
         }
         
         .token-popup {
@@ -108,12 +100,13 @@
             border: 2px solid #4CAF50;
             border-radius: 8px;
             padding: 20px;
-            max-width: 500px;
-            max-height: 600px;
+            max-width: 600px;
+            max-height: 80vh;
             overflow-y: auto;
             z-index: 2000;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             display: none;
+            pointer-events: auto;
         }
         
         .token-popup.visible {
@@ -123,7 +116,9 @@
         .token-popup h3 {
             color: #4CAF50;
             margin-bottom: 15px;
-            font-size: 16px;
+            font-size: 18px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
         }
         
         .token-popup .token-info {
@@ -132,12 +127,39 @@
             border-bottom: 1px solid #ddd;
         }
         
+        .token-popup .tree-visualization {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        
+        .token-popup .tree-node {
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .token-popup .tree-node.selected {
+            border-left-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
         .token-popup .candidate-item {
             background: #f8f9fa;
             border-left: 3px solid #2196F3;
             padding: 12px;
             margin-bottom: 10px;
             border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .token-popup .candidate-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
         }
         
         .token-popup .candidate-item.selected {
@@ -154,26 +176,48 @@
         
         .token-popup .candidate-token {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             color: #333;
         }
         
         .token-popup .candidate-prob {
-            font-size: 12px;
-            color: #666;
+            font-size: 14px;
+            color: #4CAF50;
+            font-weight: 600;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .token-popup .prob-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .token-popup .prob-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
         }
         
         .token-popup .candidate-rollout {
-            color: #999;
+            color: #666;
             font-size: 13px;
             margin-top: 8px;
             font-style: italic;
+            padding: 6px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 3px;
         }
         
         .token-popup .candidate-score {
             color: #888;
-            font-size: 11px;
-            margin-top: 4px;
+            font-size: 12px;
+            margin-top: 6px;
         }
 
         .candidates-section {
@@ -183,42 +227,43 @@
         }
 
         .candidate-card {
-            background: rgba(33, 150, 243, 0.1);
-            border: 2px solid #2196F3;
-            border-radius: 6px;
+            background: #ffffff;
+            border: 1px solid #ddd;
             padding: 12px;
         }
 
         .candidate-card.selected {
-            background: rgba(76, 175, 80, 0.2);
+            background: #f9f9f9;
             border-color: #4CAF50;
+            border-width: 2px;
         }
 
         .candidate-card h4 {
-            color: #2196F3;
-            font-size: 12px;
+            color: #666;
+            font-size: 11px;
             text-transform: uppercase;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .candidate-card.selected h4 {
-            color: #4CAF50;
+            color: #333;
         }
 
         .candidate-token {
-            color: #333;
+            color: #000;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 500;
             margin-bottom: 8px;
         }
 
         .candidate-rollout {
-            color: #999;
+            color: #666;
             font-size: 12px;
             font-style: italic;
             margin-top: 8px;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #eee;
             padding-top: 8px;
         }
         
@@ -239,15 +284,30 @@
             margin-top: 150px;
             min-height: calc(100vh - 150px);
             position: relative;
-            background: 
-                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,.03) 10px, rgba(0,0,0,.03) 20px),
-                #f5f5f5;
+            background: #ffffff;
+        }
+        
+        .canvas-container svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+        }
+        
+        .canvas-container svg line {
+            pointer-events: none;
         }
 
         .text-flow {
             position: relative;
-            padding: 100px 50px;
+            padding: 200px 100px;
             min-width: 100%;
+            display: flex;
+            align-items: center;
+            min-height: 100vh;
         }
 
         .text-segment {
@@ -257,17 +317,70 @@
             color: #000;
             white-space: nowrap;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.2s ease;
+            user-select: none;
         }
 
         .text-segment.main-path {
             color: #000;
             font-weight: bold;
+            z-index: 10;
         }
 
         .text-segment.alternative {
-            color: #000;
+            color: #666;
             font-weight: bold;
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .text-segment.alternative.visible {
+            opacity: 0.7;
+            pointer-events: auto;
+        }
+        
+        .text-segment.rollout-text {
+            color: #999;
+            font-size: 36px;
+            font-weight: normal;
+            font-style: italic;
+            opacity: 0.6;
+            z-index: 4;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .text-segment.rollout-text.visible {
+            opacity: 0.6;
+        }
+        
+        .text-segment.rollout-text.hidden {
+            opacity: 0;
+        }
+
+        .text-segment.alternative.low-prob {
+            color: #999;
+        }
+
+        .text-segment.alternative.low-prob.visible {
+            opacity: 0.5;
+        }
+
+        .text-segment.alternative.medium-prob {
+            color: #666;
+        }
+
+        .text-segment.alternative.medium-prob.visible {
+            opacity: 0.7;
+        }
+
+        .text-segment.alternative.high-prob {
+            color: #333;
+        }
+
+        .text-segment.alternative.high-prob.visible {
             opacity: 0.9;
         }
 
@@ -282,25 +395,55 @@
             opacity: 0;
             pointer-events: none;
         }
+        
+        .branch-line {
+            position: absolute;
+            stroke: #999;
+            stroke-width: 1px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        
+        .branch-line.visible {
+            opacity: 0.3;
+        }
+        
+        .branch-line.hidden {
+            opacity: 0;
+        }
+
+        .text-segment.main-path:hover {
+            opacity: 1 !important;
+            transform: scale(1.05) !important;
+            z-index: 100 !important;
+        }
+        
+        .text-segment.main-path.hovered {
+            background-color: #f0f0f0;
+            border-radius: 2px;
+            padding: 2px 4px;
+        }
 
         .controls-panel {
             position: fixed;
             top: 160px;
             right: 20px;
-            background: rgba(255, 255, 255, 0.95);
+            background: #ffffff;
             padding: 20px;
-            border-radius: 8px;
+            border: 1px solid #ddd;
             max-width: 300px;
             max-height: calc(100vh - 180px);
             overflow-y: auto;
             z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .controls-panel h3 {
             margin-bottom: 15px;
-            color: #4CAF50;
+            color: #333;
             font-size: 16px;
+            font-weight: 600;
         }
 
         .control-group {
@@ -319,25 +462,26 @@
         }
 
         button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             margin-right: 10px;
             margin-top: 10px;
+            font-weight: 500;
         }
 
         button:hover {
-            background: #45a049;
+            background: #e9e9e9;
         }
 
         .animation-controls {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid #eee;
         }
 
         .animation-buttons {
@@ -354,16 +498,16 @@
 
         .progress-bar {
             width: 100%;
-            height: 6px;
-            background: #ddd;
-            border-radius: 3px;
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
             overflow: hidden;
             margin-top: 5px;
         }
 
         .progress-fill {
             height: 100%;
-            background: #4CAF50;
+            background: #666;
             transition: width 0.3s;
             width: 0%;
         }
@@ -377,7 +521,7 @@
     
     <div class="header-panel" id="headerPanel">
         <a href="index.html" class="nav-link">← Back to Home</a>
-        <h2>🌳 Tree of Thought - Current State</h2>
+        <h2>🌳 Tree of Thought - Animation shows candidates and rollouts</h2>
         <div class="generated-text">
             <div class="generated-text-label">Generated Text:</div>
             <div class="generated-text-content" id="generatedText">-</div>
@@ -388,6 +532,7 @@
     </div>
 
     <div class="canvas-container">
+        <svg id="branchLinesSvg"></svg>
         <div class="text-flow" id="textFlow"></div>
     </div>
 
@@ -487,14 +632,21 @@
             const textFlow = document.getElementById('textFlow');
             textFlow.innerHTML = '';
             textSegments = [];
+            
+            // Clear SVG lines
+            const svg = document.getElementById('branchLinesSvg');
+            svg.innerHTML = '';
+            
+            // Clear branch segments
+            window.branchSegmentsByStep = {};
 
             animationState.currentStep = 0;
             animationState.totalSteps = treeData.steps.length;
             document.getElementById('totalSteps').textContent = animationState.totalSteps;
 
-            // Build the text flow
-            let currentX = 0;
-            let currentY = 200;
+            // Build the text flow - horizontal layout like the image
+            const centerY = window.innerHeight / 2;
+            let currentX = 100;
             const fontSize = parseFloat(document.getElementById('fontSize').value);
             const spacing = parseFloat(document.getElementById('spacing').value);
             const branchAngle = parseFloat(document.getElementById('branchAngle').value) * Math.PI / 180;
@@ -502,6 +654,7 @@
             // Track the main path
             let mainPathText = '';
             const mainPathSegments = [];
+            const branchSegmentsByStep = {}; // Store branches by step index
 
             treeData.steps.forEach((step, stepIdx) => {
                 const candidates = step.candidates || [];
@@ -514,78 +667,141 @@
                 const tokenText = selectedCandidate.token_text || '';
                 mainPathText += tokenText;
 
-                // Create main path segment
+                // Calculate width for spacing
+                const textWidth = getTextWidth(tokenText, fontSize);
+                const tokenX = currentX;
+                const tokenY = centerY;
+
+                // Create main path segment (horizontal flow)
                 const mainSegment = createTextSegment(
-                    currentX,
-                    currentY,
+                    tokenX,
+                    tokenY,
                     tokenText,
                     'main-path',
                     stepIdx,
-                    selectedCandidate
+                    selectedCandidate,
+                    0,
+                    tokenX,
+                    tokenY,
+                    textWidth
                 );
                 mainPathSegments.push(mainSegment);
                 textSegments.push(mainSegment);
 
-                // Calculate width for spacing
-                const textWidth = getTextWidth(tokenText, fontSize);
                 currentX += textWidth * spacing;
-
-                // Add rollout text for main path (in gray)
+                
+                // Add rollout text for main path token
                 if (selectedCandidate.rollout_text) {
                     const rolloutSegment = createTextSegment(
                         currentX,
-                        currentY,
+                        tokenY,
                         selectedCandidate.rollout_text,
-                        'rollout',
+                        'rollout-text',
                         stepIdx,
-                        selectedCandidate
+                        selectedCandidate,
+                        0
                     );
                     textSegments.push(rolloutSegment);
                     const rolloutWidth = getTextWidth(selectedCandidate.rollout_text, fontSize * 0.75, false);
                     currentX += rolloutWidth * spacing * 0.8;
                 }
 
-                // Create alternative branches
+                // Create alternative branches - will be shown during animation
+                const branchSegments = [];
+                const branchLines = [];
+                const rolloutSegments = [];
+                const tokenCenterX = tokenX + textWidth * 0.5;
+                const tokenCenterY = tokenY;
+                
                 candidates.forEach((candidate, candIdx) => {
                     if (candIdx === selectedIdx) return; // Skip selected
 
-                    // Calculate branch position
-                    const angle = (candIdx - selectedIdx) * branchAngle;
-                    const branchDistance = fontSize * 2.0; // Increased distance for more spacing
-                    const branchX = currentX - textWidth * spacing;
-                    const branchY = currentY + Math.sin(angle) * branchDistance;
-
                     const altText = candidate.token_text || '';
+                    const rolloutText = candidate.rollout_text || '';
+                    
+                    // Calculate fan-out positions
+                    // Center the fan around the token
+                    const totalAlternatives = candidates.length - 1;
+                    const indexInAlternatives = candIdx < selectedIdx ? candIdx : candIdx - 1;
+                    
+                    // Use a wider angle spread for better visualization
+                    const maxAngle = Math.PI / 3; // 60 degrees total spread
+                    const angleStep = totalAlternatives > 1 ? maxAngle / (totalAlternatives - 1) : 0;
+                    const startAngle = -maxAngle / 2;
+                    const rotationAngle = startAngle + indexInAlternatives * angleStep;
+                    
+                    // Distance from token (further for better visibility)
+                    const branchDistance = fontSize * 3.0;
+                    const branchX = tokenCenterX + Math.cos(rotationAngle) * branchDistance;
+                    const branchY = tokenCenterY + Math.sin(rotationAngle) * branchDistance;
+                    
+                    // Create connecting line
+                    const svg = document.getElementById('branchLinesSvg');
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', tokenCenterX);
+                    line.setAttribute('y1', tokenCenterY);
+                    line.setAttribute('x2', branchX);
+                    line.setAttribute('y2', branchY);
+                    line.setAttribute('class', 'branch-line');
+                    line.setAttribute('data-step', stepIdx);
+                    line.setAttribute('stroke', '#999');
+                    line.setAttribute('stroke-width', '1');
+                    svg.appendChild(line);
+                    branchLines.push(line);
+
+                    // Determine probability class for styling
+                    const prob = candidate.initial_prob || 0;
+                    let probClass = 'low-prob';
+                    if (prob > 0.3) probClass = 'high-prob';
+                    else if (prob > 0.1) probClass = 'medium-prob';
+
+                    // Create candidate token segment
                     const altSegment = createTextSegment(
                         branchX,
                         branchY,
                         altText,
-                        'alternative',
+                        `alternative ${probClass}`,
                         stepIdx,
                         candidate,
-                        angle
+                        rotationAngle // already in radians
                     );
+                    branchSegments.push(altSegment);
                     textSegments.push(altSegment);
                     
-                    // Add rollout text for alternatives (in gray)
-                    if (candidate.rollout_text) {
-                        const altRolloutX = branchX + getTextWidth(altText, fontSize) * spacing;
-                        const altRolloutSegment = createTextSegment(
-                            altRolloutX,
-                            branchY,
-                            candidate.rollout_text,
-                            'rollout',
+                    // Create rollout text segment after the candidate token
+                    if (rolloutText) {
+                        const rolloutWidth = getTextWidth(altText, fontSize);
+                        const rolloutX = branchX + rolloutWidth * spacing * 0.8;
+                        const rolloutY = branchY;
+                        
+                        const rolloutSegment = createTextSegment(
+                            rolloutX,
+                            rolloutY,
+                            rolloutText,
+                            'rollout-text',
                             stepIdx,
                             candidate,
-                            angle
+                            rotationAngle
                         );
-                        textSegments.push(altRolloutSegment);
+                        rolloutSegments.push(rolloutSegment);
+                        textSegments.push(rolloutSegment);
                     }
                 });
+                
+                branchSegmentsByStep[stepIdx] = {
+                    segments: branchSegments,
+                    lines: branchLines,
+                    rollouts: rolloutSegments,
+                    tokenX: tokenCenterX,
+                    tokenY: tokenCenterY
+                };
 
-                // Update currentY for next step (more vertical spacing)
-                currentY += fontSize * 0.5;
+                // Small horizontal spacing for next token
+                currentX += fontSize * 0.3;
             });
+            
+            // Store branch segments for hover functionality
+            window.branchSegmentsByStep = branchSegmentsByStep;
 
             // Initially hide all segments if animating
             if (animate) {
@@ -599,33 +815,99 @@
             setupControls();
         }
 
-        function createTextSegment(x, y, text, className, step, candidateData, rotation = 0) {
+        function createTextSegment(x, y, text, className, step, candidateData, rotation = 0, tokenX = null, tokenY = null, tokenWidth = null) {
             const segment = document.createElement('div');
             segment.className = `text-segment ${className}`;
             segment.textContent = text;
             segment.style.left = x + 'px';
             segment.style.top = y + 'px';
             
-            // Apply rotation if provided
+            // Apply rotation if provided (rotation is in radians, convert to degrees)
             if (rotation !== 0) {
-                segment.style.transform = `rotate(${rotation * 180 / Math.PI}deg)`;
+                const rotationDeg = rotation * 180 / Math.PI;
+                segment.style.transform = `rotate(${rotationDeg}deg)`;
                 segment.style.transformOrigin = 'left center';
             }
             
             // Adjust font size for rollout text
-            if (className === 'rollout') {
+            if (className.includes('rollout')) {
                 const fontSize = parseFloat(document.getElementById('fontSize').value);
                 segment.style.fontSize = (fontSize * 0.75) + 'px';
             }
             
             segment.dataset.step = step;
             segment.dataset.candidate = JSON.stringify(candidateData);
+            segment.dataset.prob = candidateData.initial_prob || 0;
+            
+            // Store token position for main path segments (for branch positioning)
+            if (tokenX !== null && tokenY !== null) {
+                segment.dataset.tokenX = tokenX;
+                segment.dataset.tokenY = tokenY;
+                segment.dataset.tokenWidth = tokenWidth;
+            }
 
-            // Add hover tooltip
-            segment.title = `Step ${step + 1}\nRollout: ${candidateData.rollout_text || 'N/A'}\nScore: ${candidateData.score || 'N/A'}`;
+            // No hover listeners - branches shown during animation instead
 
             document.getElementById('textFlow').appendChild(segment);
             return segment;
+        }
+        
+        function showBranchesForToken(stepIndex) {
+            if (!window.branchSegmentsByStep || !window.branchSegmentsByStep[stepIndex]) return;
+            
+            // Hide all other branches first
+            Object.keys(window.branchSegmentsByStep).forEach(step => {
+                if (parseInt(step) !== stepIndex) {
+                    hideBranchesForToken(parseInt(step));
+                }
+            });
+            
+            // Show branches, lines, and rollouts for this token
+            const branchData = window.branchSegmentsByStep[stepIndex];
+            if (branchData.segments) {
+                branchData.segments.forEach(segment => {
+                    segment.classList.add('visible');
+                });
+            }
+            if (branchData.lines) {
+                branchData.lines.forEach(line => {
+                    line.classList.add('visible');
+                });
+            }
+            if (branchData.rollouts) {
+                branchData.rollouts.forEach(rollout => {
+                    rollout.classList.add('visible');
+                });
+            }
+        }
+        
+        function hideBranchesForToken(stepIndex) {
+            if (!window.branchSegmentsByStep || !window.branchSegmentsByStep[stepIndex]) return;
+            
+            const branchData = window.branchSegmentsByStep[stepIndex];
+            if (branchData.segments) {
+                branchData.segments.forEach(segment => {
+                    segment.classList.remove('visible');
+                });
+            }
+            if (branchData.lines) {
+                branchData.lines.forEach(line => {
+                    line.classList.remove('visible');
+                });
+            }
+            if (branchData.rollouts) {
+                branchData.rollouts.forEach(rollout => {
+                    rollout.classList.remove('visible');
+                });
+            }
+        }
+        
+        function hideAllBranches() {
+            if (!window.branchSegmentsByStep) return;
+            
+            Object.keys(window.branchSegmentsByStep).forEach(step => {
+                hideBranchesForToken(parseInt(step));
+            });
         }
 
         function getTextWidth(text, fontSize, isBold = true) {
@@ -639,6 +921,9 @@
         function showStep(stepIndex) {
             if (stepIndex < 0 || stepIndex >= animationState.totalSteps) return;
 
+            // Hide all branches first
+            hideAllBranches();
+
             // Show/hide segments based on step
             textSegments.forEach(segment => {
                 const segmentStep = parseInt(segment.dataset.step);
@@ -648,6 +933,9 @@
                     segment.classList.add('hidden');
                 }
             });
+
+            // Show branches and rollouts for the current step
+            showBranchesForToken(stepIndex);
 
             // Update header panel (this will update token highlighting)
             updateHeaderPanel(stepIndex);
@@ -706,16 +994,7 @@
                     tokenSpan.dataset.step = i;
                     
                     // Add hover and click handlers
-                    tokenSpan.addEventListener('mouseenter', (e) => {
-                        if (!animationState.isPlaying) {
-                            showTokenPopup(i, e);
-                        }
-                    });
-                    tokenSpan.addEventListener('mouseleave', () => {
-                        if (!animationState.isPlaying) {
-                            hideTokenPopup();
-                        }
-                    });
+                    // Remove hover popup - not needed anymore
                     tokenSpan.addEventListener('click', () => {
                         pauseAnimation();
                         animationState.currentStep = i;
@@ -763,7 +1042,7 @@
             });
         }
         
-        function showTokenPopup(stepIndex, event) {
+        function showTokenPopup(stepIndex, event, hoveredCandidate = null) {
             if (!treeData || !treeData.steps || stepIndex >= treeData.steps.length) return;
             if (animationState.isPlaying) return; // Don't show popup during animation
             
@@ -772,51 +1051,71 @@
             const popupTitle = document.getElementById('popupTitle');
             const popupContent = document.getElementById('popupContent');
             
-            popupTitle.textContent = `Step ${stepIndex + 1} - Token: "${step.selected_text || ''}"`;
+            const tokenText = hoveredCandidate ? hoveredCandidate.token_text : (step.selected_text || '');
+            popupTitle.textContent = `Step ${stepIndex + 1} - Tree of Thought: "${tokenText}"`;
             
             let html = '';
             
             if (step.candidates && step.candidates.length > 0) {
                 html += '<div class="token-info">';
-                html += `<p><strong>Selected Token:</strong> "${escapeHtml(step.selected_text || 'N/A')}"</p>`;
+                html += `<p><strong>Token:</strong> "${escapeHtml(tokenText)}"</p>`;
                 html += `<p><strong>Total Candidates:</strong> ${step.candidates.length}</p>`;
-                html += `<p><strong>Selected Index:</strong> ${step.selected_candidate}</p>`;
+                if (hoveredCandidate) {
+                    html += `<p><strong>Probability:</strong> ${(hoveredCandidate.initial_prob * 100).toFixed(2)}%</p>`;
+                    html += `<p><strong>Score:</strong> ${hoveredCandidate.score ? hoveredCandidate.score.toFixed(4) : 'N/A'}</p>`;
+                }
                 html += '</div>';
                 
-                html += '<h4 style="margin-top: 15px; margin-bottom: 10px; color: #333; font-size: 14px;">All Candidates (sorted by score):</h4>';
+                // Tree visualization section
+                html += '<div class="tree-visualization">';
+                html += '<h4 style="margin-bottom: 12px; color: #333; font-size: 14px; font-weight: bold;">🌳 All Candidates (Tree of Thought):</h4>';
                 
-                // Sort candidates by score (best first)
+                // Sort candidates by probability (highest first) for better visualization
                 const sortedCandidates = [...step.candidates].sort((a, b) => {
-                    const scoreA = a.score || -Infinity;
-                    const scoreB = b.score || -Infinity;
-                    return scoreB - scoreA; // Higher score is better
+                    const probA = a.initial_prob || 0;
+                    const probB = b.initial_prob || 0;
+                    return probB - probA; // Higher probability first
                 });
+                
+                // Find max probability for scaling
+                const maxProb = Math.max(...sortedCandidates.map(c => c.initial_prob || 0));
                 
                 sortedCandidates.forEach((candidate, sortedIdx) => {
                     const originalIdx = step.candidates.indexOf(candidate);
                     const isSelected = originalIdx === step.selected_candidate;
+                    const isHovered = hoveredCandidate && candidate.token_text === hoveredCandidate.token_text;
+                    const prob = candidate.initial_prob || 0;
+                    const probPercent = (prob * 100).toFixed(2);
+                    const probBarWidth = maxProb > 0 ? (prob / maxProb * 100) : 0;
+                    
                     const rank = sortedIdx === 0 ? '🥇' : sortedIdx === 1 ? '🥈' : sortedIdx === 2 ? '🥉' : `${sortedIdx + 1}.`;
                     
                     html += `
-                        <div class="candidate-item ${isSelected ? 'selected' : ''}">
+                        <div class="candidate-item ${isSelected ? 'selected' : ''} ${isHovered ? 'selected' : ''}" style="${isHovered ? 'border: 2px solid #6366f1;' : ''}">
                             <div class="candidate-header">
                                 <span class="candidate-token">${rank} ${escapeHtml(candidate.token_text || '')}</span>
-                                <span class="candidate-prob">${candidate.initial_prob ? (candidate.initial_prob * 100).toFixed(2) + '%' : 'N/A'}</span>
+                                <span class="candidate-prob">${probPercent}%</span>
+                            </div>
+                            <div class="prob-bar">
+                                <div class="prob-bar-fill" style="width: ${probBarWidth}%"></div>
                             </div>
                             <div class="candidate-score">Score: ${candidate.score ? candidate.score.toFixed(4) : 'N/A'} | Index: ${originalIdx}</div>
                             <div class="candidate-rollout">Rollout: "${escapeHtml(candidate.rollout_text || '')}"</div>
-                            ${isSelected ? '<div style="color: #4CAF50; font-size: 11px; margin-top: 4px; font-weight: bold;">✓ SELECTED</div>' : ''}
+                            ${isSelected ? '<div style="color: #4CAF50; font-size: 12px; margin-top: 6px; font-weight: bold;">✓ SELECTED</div>' : ''}
+                            ${isHovered ? '<div style="color: #6366f1; font-size: 12px; margin-top: 6px; font-weight: bold;">👆 HOVERED</div>' : ''}
                         </div>
                     `;
                 });
+                
+                html += '</div>';
             }
             
             popupContent.innerHTML = html;
             popup.classList.add('visible');
             
             // Position popup near cursor, but keep it on screen
-            const popupWidth = 500;
-            const popupHeight = Math.min(600, popupContent.scrollHeight + 100);
+            const popupWidth = 600;
+            const popupHeight = Math.min(window.innerHeight * 0.8, popupContent.scrollHeight + 100);
             const x = Math.min(event.clientX + 20, window.innerWidth - popupWidth - 20);
             const y = Math.min(event.clientY + 20, window.innerHeight - popupHeight - 20);
             
@@ -872,9 +1171,6 @@
         function playAnimation() {
             if (animationState.isPlaying) return;
             if (animationState.totalSteps === 0) return;
-
-            // Hide popup when animation starts
-            hideTokenPopup();
 
             animationState.isPlaying = true;
             document.getElementById('playBtn').style.display = 'none';
@@ -935,13 +1231,22 @@
             return div.innerHTML;
         }
 
-        // Close popup when clicking outside
+        // Close popup when clicking outside or moving mouse away
         document.addEventListener('click', (e) => {
             const popup = document.getElementById('tokenPopup');
-            if (!popup.contains(e.target) && !e.target.classList.contains('token-span')) {
+            if (!popup.contains(e.target) && !e.target.classList.contains('token-span') && !e.target.classList.contains('text-segment')) {
                 hideTokenPopup();
             }
         });
+        
+        // Hide popup by default - we don't want to show it
+        const popup = document.getElementById('tokenPopup');
+        if (popup) {
+            popup.style.display = 'none';
+        }
+        
+        // Initialize branch segments storage
+        window.branchSegmentsByStep = {};
         
         // Initialize
         loadDefaultFile();
