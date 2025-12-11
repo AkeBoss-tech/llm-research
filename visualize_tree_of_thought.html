@@ -257,6 +257,29 @@
         const fileInput = document.getElementById('treeFile');
         const contentDiv = document.getElementById('content');
 
+        // Load default tree JSON file on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadDefaultTree();
+        });
+
+        function loadDefaultTree() {
+            contentDiv.innerHTML = '<div class="loading">Loading tree data...</div>';
+            
+            fetch('tree_data_problem_1.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to load tree data: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(treeData => {
+                    renderTree(treeData);
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `<div class="error">Error loading default tree data: ${error.message}<br>Please use the file input above to load a tree JSON file.</div>`;
+                });
+        }
+
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
